@@ -17,6 +17,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState('');
+  const [ocrConfidence, setOcrConfidence] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -135,7 +136,11 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
       const ocrIngredients = extractIngredients(ocrResult.text);
       
       console.log('OCR extracted ingredients:', ocrIngredients);
+      console.log('OCR confidence:', ocrResult.confidence.toFixed(2) + '%');
       console.log('Visual predicted ingredients:', visualResult.predictedIngredients);
+      
+      // Store OCR confidence
+      setOcrConfidence(ocrResult.confidence);
       
       // Combine OCR and visual analysis
       let finalIngredients = '';
@@ -212,6 +217,23 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
 
   return (
     <div className="space-y-4">
+      {/* Scanning Tips */}
+      {!capturedImage && !isProcessing && (
+        <Alert className="border-primary/30 bg-primary/5">
+          <AlertDescription>
+            <div className="space-y-2">
+              <p className="font-semibold text-foreground">📸 Tips for Best Results:</p>
+              <ul className="space-y-1 text-sm text-muted-foreground">
+                <li>• Ensure good lighting on the label</li>
+                <li>• Focus on the ingredient section</li>
+                <li>• Hold camera steady and avoid blur</li>
+                <li>• Make sure text is clearly visible</li>
+              </ul>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {!capturedImage ? (
         <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
           <video
@@ -252,13 +274,30 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
 
       {extractedText && !isProcessing && (
         <div className="space-y-2">
-          <label className="text-sm font-medium">Extracted ingredients (you can edit):</label>
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium">Extracted ingredients (you can edit):</label>
+            {ocrConfidence > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">OCR Confidence:</span>
+                <span className={`text-xs font-semibold ${
+                  ocrConfidence >= 80 ? 'text-natural' : 
+                  ocrConfidence >= 60 ? 'text-processed' : 
+                  'text-synthetic'
+                }`}>
+                  {ocrConfidence.toFixed(0)}%
+                </span>
+              </div>
+            )}
+          </div>
           <Textarea
             value={extractedText}
             onChange={(e) => setExtractedText(e.target.value)}
             rows={6}
             className="resize-none"
           />
+          <p className="text-xs text-muted-foreground">
+            💡 Tip: Review and correct any errors before analyzing
+          </p>
         </div>
       )}
 

@@ -6,8 +6,8 @@ export interface OCRResult {
 }
 
 /**
- * Preprocess image for better OCR accuracy
- * Applies grayscale, contrast enhancement, and sharpening
+ * Advanced image preprocessing for maximum OCR accuracy
+ * Applies multiple techniques: scaling, grayscale, adaptive thresholding, noise reduction
  */
 async function preprocessImage(imageData: string): Promise<string> {
   return new Promise((resolve) => {
@@ -21,28 +21,101 @@ async function preprocessImage(imageData: string): Promise<string> {
         return;
       }
       
-      // Set canvas size to original image size for best quality
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Scale up small images for better OCR (minimum 1000px width)
+      const minWidth = 1000;
+      let width = img.width;
+      let height = img.height;
       
-      // Draw original image
-      ctx.drawImage(img, 0, 0);
+      if (width < minWidth) {
+        const scale = minWidth / width;
+        width = minWidth;
+        height = Math.round(height * scale);
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw scaled image
+      ctx.drawImage(img, 0, 0, width, height);
       
       // Get image data
-      const imageDataObj = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const imageDataObj = ctx.getImageData(0, 0, width, height);
       const data = imageDataObj.data;
       
-      // Convert to grayscale and increase contrast
+      // Step 1: Convert to grayscale
+      const grayscale = new Uint8ClampedArray(width * height);
       for (let i = 0; i < data.length; i += 4) {
-        // Grayscale conversion
         const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        
-        // Increase contrast (simple threshold)
-        const contrast = gray > 128 ? 255 : 0;
-        
-        data[i] = contrast;     // R
-        data[i + 1] = contrast; // G
-        data[i + 2] = contrast; // B
+        grayscale[i / 4] = gray;
+      }
+      
+      // Step 2: Apply adaptive thresholding (better than simple threshold)
+      const blockSize = 15;
+      const C = 10;
+      
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const idx = y * width + x;
+          
+          // Calculate local mean in block
+          let sum = 0;
+          let count = 0;
+          
+          for (let by = Math.max(0, y - blockSize); by < Math.min(height, y + blockSize); by++) {
+            for (let bx = Math.max(0, x - blockSize); bx < Math.min(width, x + blockSize); bx++) {
+              sum += grayscale[by * width + bx];
+              count++;
+            }
+          }
+          
+          const mean = sum / count;
+          const threshold = mean - C;
+          
+          // Apply threshold
+          const value = grayscale[idx] > threshold ? 255 : 0;
+          
+          // Set RGB values
+          const dataIdx = idx * 4;
+          data[dataIdx] = value;
+          data[dataIdx + 1] = value;
+          data[dataIdx + 2] = value;
+        }
+      }
+      
+      // Step 3: Noise reduction (median filter)
+      const filtered = new Uint8ClampedArray(data.length);
+      const filterSize = 3;
+      
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const neighbors: number[] = [];
+          
+          for (let fy = -1; fy <= 1; fy++) {
+            for (let fx = -1; fx <= 1; fx++) {
+              const ny = y + fy;
+              const nx = x + fx;
+              
+              if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+                const idx = (ny * width + nx) * 4;
+                neighbors.push(data[idx]);
+              }
+            }
+          }
+          
+          neighbors.sort((a, b) => a - b);
+          const median = neighbors[Math.floor(neighbors.length / 2)];
+          
+          const idx = (y * width + x) * 4;
+          filtered[idx] = median;
+          filtered[idx + 1] = median;
+          filtered[idx + 2] = median;
+          filtered[idx + 3] = 255;
+        }
+      }
+      
+      // Apply filtered data
+      for (let i = 0; i < filtered.length; i++) {
+        data[i] = filtered[i];
       }
       
       // Put processed image back
