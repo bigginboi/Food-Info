@@ -111,15 +111,64 @@ export default function ResultsPage() {
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-natural" />
-                <span>Natural ({summary.naturalCount})</span>
+                <span className="font-medium">Natural ({summary.naturalCount})</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-processed" />
-                <span>Processed ({summary.processedCount})</span>
+                <span className="font-medium">Processed ({summary.processedCount})</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-synthetic" />
-                <span>Synthetic ({summary.syntheticCount})</span>
+                <span className="font-medium">Synthetic ({summary.syntheticCount})</span>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Health Impact Summary */}
+        <Card className="p-6 space-y-4">
+          <h2 className="text-xl font-bold">Health Impact Summary</h2>
+          
+          <div className="space-y-3">
+            <div className="rounded-lg border-2 border-natural/30 bg-natural/5 p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-natural mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-natural mb-1">Good for Health</h3>
+                  <p className="text-sm text-foreground">
+                    {summary.naturalCount > 0 
+                      ? `Contains ${summary.naturalCount} natural ingredient${summary.naturalCount > 1 ? 's' : ''} that provide nutritional benefits, vitamins, minerals, and support overall health without artificial processing.`
+                      : 'No natural ingredients found in this product.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border-2 border-processed/30 bg-processed/5 p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-processed mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-processed mb-1">Moderate Concerns</h3>
+                  <p className="text-sm text-foreground">
+                    {summary.processedCount > 0
+                      ? `Contains ${summary.processedCount} processed ingredient${summary.processedCount > 1 ? 's' : ''} that have been refined or modified. These may lack fiber, nutrients, or contain added sugars and unhealthy fats.`
+                      : 'No processed ingredients found.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border-2 border-synthetic/30 bg-synthetic/5 p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-synthetic mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-synthetic mb-1">Health Cautions</h3>
+                  <p className="text-sm text-foreground">
+                    {summary.syntheticCount > 0
+                      ? `Contains ${summary.syntheticCount} synthetic ingredient${summary.syntheticCount > 1 ? 's' : ''} that are artificially created. These may include preservatives, artificial sweeteners, or flavor enhancers that some people prefer to avoid.`
+                      : 'No synthetic ingredients found.'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

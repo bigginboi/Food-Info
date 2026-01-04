@@ -85,11 +85,12 @@ export default function IngredientCard({ ingredient }: IngredientCardProps) {
               )}
 
               {ingredient.benefits && ingredient.benefits.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">
-                    Benefits
+                <div className="rounded-lg bg-natural/5 p-3">
+                  <h4 className="text-xs font-semibold uppercase text-natural mb-2 flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Health Benefits
                   </h4>
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5">
                     {ingredient.benefits.map((benefit, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <CheckCircle2 className="h-4 w-4 shrink-0 text-natural mt-0.5" />
@@ -101,14 +102,15 @@ export default function IngredientCard({ ingredient }: IngredientCardProps) {
               )}
 
               {ingredient.considerations && ingredient.considerations.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-2">
-                    Considerations
+                <div className="rounded-lg bg-destructive/5 p-3">
+                  <h4 className="text-xs font-semibold uppercase text-destructive mb-2 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Health Concerns
                   </h4>
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5">
                     {ingredient.considerations.map((consideration, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
-                        <AlertTriangle className="h-4 w-4 shrink-0 text-processed mt-0.5" />
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-destructive mt-0.5" />
                         <span className="text-foreground">{consideration}</span>
                       </li>
                     ))}
