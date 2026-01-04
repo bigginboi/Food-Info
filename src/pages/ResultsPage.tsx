@@ -331,7 +331,38 @@ export default function ResultsPage() {
 
         {/* Ingredient Breakdown */}
         <div className="space-y-3">
-          <h2 className="text-xl font-bold">Ingredient Breakdown</h2>
+          <h2 className="text-xl font-bold">Complete Ingredient List</h2>
+          
+          {/* Quick Reference Table */}
+          <Card className="p-4">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3">Quick Reference</h3>
+            <div className="space-y-2">
+              {ingredients.map((ingredient, index) => (
+                <div key={index} className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+                  <span className="text-sm font-medium text-foreground">{ingredient.name}</span>
+                  <Badge 
+                    variant="secondary" 
+                    className={
+                      ingredient.classification === 'natural' 
+                        ? 'bg-natural text-natural-foreground' 
+                        : ingredient.classification === 'processed'
+                        ? 'bg-processed text-processed-foreground'
+                        : 'bg-synthetic text-synthetic-foreground'
+                    }
+                  >
+                    {ingredient.classification === 'natural' ? '🌿 Natural' : 
+                     ingredient.classification === 'processed' ? '⚙️ Processed' : 
+                     '🧪 Synthetic'}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <h2 className="text-xl font-bold pt-4">Detailed Ingredient Analysis</h2>
+          <p className="text-sm text-muted-foreground">
+            Click on any ingredient below to see detailed benefits, health concerns, and who should pay attention.
+          </p>
           {ingredients.map((ingredient, index) => (
             <IngredientCard key={index} ingredient={ingredient} />
           ))}

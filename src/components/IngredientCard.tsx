@@ -85,16 +85,16 @@ export default function IngredientCard({ ingredient }: IngredientCardProps) {
               )}
 
               {ingredient.benefits && ingredient.benefits.length > 0 && (
-                <div className="rounded-lg bg-natural/5 p-3">
-                  <h4 className="text-xs font-semibold uppercase text-natural mb-2 flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Health Benefits
+                <div className="rounded-lg bg-natural/10 border-2 border-natural/30 p-4">
+                  <h4 className="text-sm font-bold text-natural mb-3 flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4" />
+                    ✅ Health Benefits & Advantages
                   </h4>
-                  <ul className="space-y-1.5">
+                  <ul className="space-y-2">
                     {ingredient.benefits.map((benefit, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <CheckCircle2 className="h-4 w-4 shrink-0 text-natural mt-0.5" />
-                        <span className="text-foreground">{benefit}</span>
+                        <span className="text-foreground font-medium">{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -102,16 +102,16 @@ export default function IngredientCard({ ingredient }: IngredientCardProps) {
               )}
 
               {ingredient.considerations && ingredient.considerations.length > 0 && (
-                <div className="rounded-lg bg-destructive/5 p-3">
-                  <h4 className="text-xs font-semibold uppercase text-destructive mb-2 flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3" />
-                    Health Concerns
+                <div className="rounded-lg bg-destructive/10 border-2 border-destructive/30 p-4">
+                  <h4 className="text-sm font-bold text-destructive mb-3 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    ⚠️ Health Concerns & Disadvantages
                   </h4>
-                  <ul className="space-y-1.5">
+                  <ul className="space-y-2">
                     {ingredient.considerations.map((consideration, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm">
                         <AlertTriangle className="h-4 w-4 shrink-0 text-destructive mt-0.5" />
-                        <span className="text-foreground">{consideration}</span>
+                        <span className="text-foreground font-medium">{consideration}</span>
                       </li>
                     ))}
                   </ul>
