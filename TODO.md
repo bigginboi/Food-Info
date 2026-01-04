@@ -70,6 +70,13 @@
   - [x] Add multi-step processing UI (scanning, detecting, extracting, fetching)
   - [x] Display detected product name in camera and results pages
   - [x] Show real-time OCR progress to users
+  - [x] Enhance detectFoodInImage with multi-tier validation logic
+  - [x] Add OCR confidence threshold checking (minimum 30%)
+  - [x] Implement strong food indicators (nutrition facts, ingredients, serving size)
+  - [x] Add food ingredient counting (require 3+ common ingredients)
+  - [x] Improve ingredient extraction with 5 different strategies
+  - [x] Add comprehensive logging for debugging OCR results
+  - [x] Enhance error messages with specific guidance for users
 
 ## Notes
 - Green color scheme for natural/safe ingredients
@@ -79,13 +86,26 @@
 - Camera support for both mobile and desktop webcam
 - User preferences stored in context (no backend storage mentioned in requirements)
 - **REAL OCR IMPLEMENTATION**: Uses Tesseract.js for actual text extraction from images
+- **INTELLIGENT FOOD DETECTION**: Multi-tier validation system based on actual OCR results
+  - OCR confidence threshold: minimum 30% confidence required
+  - Strong food indicators: nutrition facts, ingredients, serving size, calories, vitamins
+  - Food ingredient counting: requires 3+ common food ingredients
+  - Pattern matching: checks for comma-separated lists with food-related words
+  - Permissive approach: defaults to food when uncertain (no non-food indicators)
+- **ADVANCED INGREDIENT EXTRACTION**: 5 different strategies to find ingredient lists
+  - Strategy 1: "Ingredients:" or "Ingredient list:" pattern matching
+  - Strategy 2: "Contains:" pattern matching
+  - Strategy 3: "Made with:" or "Made from:" pattern matching
+  - Strategy 4: Lines with 3+ commas and food-related words
+  - Strategy 5: Text between "ingredients" and "nutrition facts"
 - **LIVE DATA INTEGRATION**: Fetches real product data from OpenFoodFacts API
 - Multi-step processing with visual feedback (scanning → detecting → extracting → fetching)
 - Automatic product name detection from scanned images
-- Automatic ingredient list extraction with pattern matching
 - FDA recalls check functionality (uses FDA OpenFDA API)
 - USDA FoodData Central API support (requires API key for full functionality)
-- **PERMISSIVE VALIDATION**: Defaults to treating input as food unless explicitly non-edible
+- Comprehensive logging for debugging OCR and detection results
+- Specific error messages with actionable guidance (lighting, focus, label visibility)
+- **NO SIMULATION**: All food detection based on actual OCR analysis of image content
 - Accepts all food items with chemical names, additives, preservatives, and flavor enhancers
 - Only rejects clearly non-edible items (electronics, cosmetics, cleaning products, tools, etc.)
 - Comprehensive health information with 40+ ingredients in local database

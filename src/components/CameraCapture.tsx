@@ -75,61 +75,81 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
 
     try {
       // Step 1: Detect if food item is present using real OCR
-      setProcessingStep('Detecting food product...');
+      setProcessingStep('Analyzing image with OCR...');
       const isFood = await detectFoodInImage(imageData);
       
       if (!isFood) {
         setNoFoodDetected(true);
-        setError('No food item detected. Please scan a food product label.');
+        setError('No food item detected. Please scan a food product label with visible ingredients or nutrition facts.');
         setIsProcessing(false);
+        setProcessingStep('');
         return;
       }
 
       // Step 2: Extract text using real OCR
-      setProcessingStep('Extracting text from image...');
+      setProcessingStep('Extracting text from label...');
       const ocrResult = await extractTextFromImage(imageData);
       
       if (!ocrResult.text || ocrResult.text.trim().length < 10) {
-        setError('Could not extract text from image. Please try again with better lighting.');
+        setError('Could not extract enough text from image. Please try again with better lighting and focus.');
         setIsProcessing(false);
+        setProcessingStep('');
         return;
       }
+
+      console.log('OCR Result:', {
+        text: ocrResult.text,
+        confidence: ocrResult.confidence,
+        length: ocrResult.text.length
+      });
 
       // Step 3: Extract product name
       setProcessingStep('Identifying product...');
       const detectedProductName = extractProductName(ocrResult.text);
       if (detectedProductName) {
         setProductName(detectedProductName);
+        console.log('Detected product name:', detectedProductName);
       }
 
       // Step 4: Extract ingredient list
       setProcessingStep('Extracting ingredients...');
       const ingredients = extractIngredients(ocrResult.text);
       
-      if (ingredients) {
+      console.log('Extracted ingredients:', ingredients);
+      
+      if (ingredients && ingredients.length > 30) {
         setExtractedText(ingredients);
       } else {
         // If no clear ingredient list found, use full text
+        console.log('No clear ingredient list found, using full OCR text');
         setExtractedText(ocrResult.text);
       }
 
       // Step 5: Try to fetch additional data from food databases
       if (detectedProductName) {
-        setProcessingStep('Fetching product data...');
-        const productData = await searchFoodProduct(detectedProductName);
-        
-        if (productData && productData.ingredients) {
-          // Use database ingredients if available and more complete
-          if (productData.ingredients.length > (ingredients?.length || 0)) {
-            setExtractedText(productData.ingredients);
+        setProcessingStep('Fetching product data from database...');
+        try {
+          const productData = await searchFoodProduct(detectedProductName);
+          
+          if (productData && productData.ingredients) {
+            console.log('Found product in database:', productData.name);
+            // Use database ingredients if available and more complete
+            if (productData.ingredients.length > (ingredients?.length || 0)) {
+              setExtractedText(productData.ingredients);
+              console.log('Using database ingredients (more complete)');
+            }
           }
+        } catch (dbError) {
+          console.log('Database lookup failed, using OCR data:', dbError);
+          // Continue with OCR data if database lookup fails
         }
       }
 
       setProcessingStep('');
     } catch (err) {
       console.error('Processing error:', err);
-      setError('Failed to process image. Please try again.');
+      setError('Failed to process image. Please try again with a clearer photo of the food label.');
+      setProcessingStep('');
     } finally {
       setIsProcessing(false);
     }
