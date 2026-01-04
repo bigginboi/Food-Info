@@ -40,6 +40,14 @@
   - [x] Display allergen warnings on Results page
   - [x] Update type definitions to support allergens
   - [x] Integrate header into Home and Results pages
+- [x] Step 11: Non-Food Validation and FDA Data Integration
+  - [x] Implement non-food item detection with keyword validation
+  - [x] Add comprehensive non-food keyword list (household, electronics, cosmetics, etc.)
+  - [x] Create error handling for non-food items with user-friendly messages
+  - [x] Update ingredient data with accurate FDA and Nutrition.gov information
+  - [x] Add specific dietary guidelines (American Heart Association, American Diabetes Association)
+  - [x] Enhance data sources with descriptions and URLs
+  - [x] Update Results page to display clickable source links
 
 ## Notes
 - Green color scheme for natural/safe ingredients
@@ -52,4 +60,7 @@
 - Comprehensive health information with 40+ ingredients
 - Allergen detection for common allergens (Wheat, Gluten, Soy, Milk, Dairy, Tree Nuts, etc.)
 - Beautiful branded header with gradient logo and app name
+- Non-food item validation prevents analysis of household items, electronics, cosmetics, etc.
+- All ingredient data references FDA, Nutrition.gov, American Heart Association, and other authoritative sources
+- Data sources are clickable links with descriptions
 

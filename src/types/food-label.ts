@@ -42,6 +42,12 @@ export interface IngredientSummary {
   allergens: string[];
 }
 
+export interface DataSource {
+  name: string;
+  description: string;
+  url: string;
+}
+
 export interface AnalysisResult {
   summary: IngredientSummary;
   verdict: {
@@ -50,7 +56,7 @@ export interface AnalysisResult {
   };
   personalizedInsight: string;
   ingredients: Ingredient[];
-  sources: string[];
+  sources: DataSource[];
 }
 
 export interface SampleProduct {

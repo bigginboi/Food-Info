@@ -7,6 +7,71 @@ import type {
 } from '@/types/food-label';
 import { dataSources } from './mockData';
 
+// Non-food keywords that indicate invalid input
+const NON_FOOD_KEYWORDS = [
+  // Household items
+  'detergent', 'soap', 'shampoo', 'conditioner', 'lotion', 'cream', 'cleanser',
+  'bleach', 'disinfectant', 'sanitizer', 'polish', 'wax', 'spray',
+  // Electronics
+  'battery', 'charger', 'cable', 'wire', 'circuit', 'electronic', 'computer',
+  'phone', 'tablet', 'laptop', 'monitor', 'keyboard', 'mouse',
+  // Clothing/Textiles
+  'fabric', 'textile', 'cotton', 'polyester', 'nylon', 'clothing', 'shirt',
+  'pants', 'dress', 'shoes', 'socks', 'underwear',
+  // Tools/Hardware
+  'hammer', 'screwdriver', 'wrench', 'drill', 'saw', 'nail', 'screw',
+  'bolt', 'tool', 'hardware',
+  // Furniture
+  'chair', 'table', 'desk', 'bed', 'sofa', 'couch', 'furniture',
+  // Cosmetics/Personal Care
+  'makeup', 'lipstick', 'mascara', 'foundation', 'perfume', 'cologne',
+  'deodorant', 'toothpaste', 'mouthwash',
+  // Automotive
+  'motor oil', 'gasoline', 'diesel', 'antifreeze', 'brake fluid',
+  // Office supplies
+  'paper', 'pen', 'pencil', 'stapler', 'tape', 'glue',
+  // Chemicals
+  'solvent', 'thinner', 'acetone', 'alcohol', 'ammonia',
+];
+
+// Common food-related words that should pass validation
+const FOOD_KEYWORDS = [
+  'flour', 'sugar', 'salt', 'water', 'oil', 'butter', 'milk', 'egg',
+  'wheat', 'corn', 'rice', 'oat', 'barley', 'soy', 'protein',
+  'vitamin', 'mineral', 'preservative', 'flavor', 'color', 'starch',
+  'yeast', 'baking', 'spice', 'herb', 'extract', 'acid', 'syrup',
+  'sweetener', 'emulsifier', 'thickener', 'stabilizer', 'lecithin',
+  'gelatin', 'pectin', 'agar', 'carrageenan', 'gum', 'fiber',
+];
+
+// Validate if input is food-related
+function validateFoodInput(ingredientList: string): { isValid: boolean; reason?: string } {
+  const normalized = ingredientList.toLowerCase();
+  
+  // Check for non-food keywords
+  for (const keyword of NON_FOOD_KEYWORDS) {
+    if (normalized.includes(keyword)) {
+      return {
+        isValid: false,
+        reason: `This appears to be a non-food item (detected: "${keyword}"). Please scan or enter food product ingredients only.`
+      };
+    }
+  }
+  
+  // If input is very short and doesn't contain food keywords, it might be invalid
+  if (ingredientList.length < 10) {
+    const hasAnyFoodKeyword = FOOD_KEYWORDS.some(keyword => normalized.includes(keyword));
+    if (!hasAnyFoodKeyword) {
+      return {
+        isValid: false,
+        reason: 'Input too short or does not appear to be food ingredients. Please enter a valid ingredient list.'
+      };
+    }
+  }
+  
+  return { isValid: true };
+}
+
 // Ingredient knowledge base for analysis
 const ingredientDatabase: Record<string, Partial<Ingredient>> = {
   'wheat flour': {
@@ -38,16 +103,16 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     chemicalName: 'High Fructose Corn Syrup (HFCS)',
     whyUsed: 'Sweetener that is cheaper than sugar and extends shelf life.',
     benefits: ['Provides sweetness and energy', 'Cost-effective for manufacturers', 'Extends product shelf life'],
-    considerations: ['High in calories with no nutritional value', 'May contribute to weight gain and obesity', 'Linked to increased risk of type 2 diabetes', 'Associated with fatty liver disease when consumed in excess', 'Can increase triglyceride levels', 'May promote insulin resistance'],
-    whoShouldCare: 'Anyone watching their sugar intake, managing weight, people with diabetes or prediabetes, those concerned about metabolic health, individuals with fatty liver disease.',
+    considerations: ['High in calories with no nutritional value', 'May contribute to weight gain and obesity according to FDA studies', 'Linked to increased risk of type 2 diabetes per American Diabetes Association', 'Associated with non-alcoholic fatty liver disease when consumed in excess', 'Can increase triglyceride levels', 'May promote insulin resistance', 'Dietary Guidelines for Americans recommend limiting added sugars to less than 10% of daily calories', 'No fiber, vitamins, or minerals'],
+    whoShouldCare: 'Anyone watching their sugar intake, managing weight, people with diabetes or prediabetes, those concerned about metabolic health, individuals with fatty liver disease, people following Dietary Guidelines for Americans.',
   },
   'sugar': {
     classification: 'processed',
     chemicalName: 'Sucrose',
     whyUsed: 'Provides sweetness and enhances flavor.',
     benefits: ['Quick source of energy', 'Enhances taste and palatability'],
-    considerations: ['High in calories with no nutritional value', 'Can cause blood sugar spikes', 'Linked to tooth decay', 'Excessive consumption associated with obesity, diabetes, and heart disease', 'May be addictive'],
-    whoShouldCare: 'People with diabetes, those managing weight, individuals concerned about dental health, anyone trying to reduce sugar intake.',
+    considerations: ['High in calories with no nutritional value (empty calories)', 'Can cause blood sugar spikes', 'Linked to tooth decay and cavities', 'Excessive consumption associated with obesity, type 2 diabetes, and heart disease per FDA', 'May be addictive according to research', 'American Heart Association recommends limiting added sugars to 25g/day for women and 36g/day for men', 'Contributes to inflammation when consumed in excess', 'No vitamins, minerals, or fiber'],
+    whoShouldCare: 'People with diabetes, those managing weight, individuals concerned about dental health, anyone trying to reduce sugar intake, people following American Heart Association guidelines.',
   },
   'yeast': {
     classification: 'natural',
@@ -60,8 +125,8 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     classification: 'natural',
     whyUsed: 'Enhances flavor and acts as a preservative.',
     benefits: ['Essential mineral (sodium) needed for nerve and muscle function', 'Helps maintain fluid balance', 'Flavor enhancement', 'Natural preservative'],
-    considerations: ['Excessive intake can lead to high blood pressure', 'May increase risk of heart disease and stroke', 'Can cause water retention', 'Linked to kidney problems in excess'],
-    whoShouldCare: 'Individuals with hypertension, heart conditions, kidney disease, or those on sodium-restricted diets.',
+    considerations: ['Excessive intake can lead to high blood pressure', 'May increase risk of heart disease and stroke per American Heart Association', 'Can cause water retention', 'Linked to kidney problems in excess', 'FDA recommends limiting sodium to less than 2,300mg per day (about 1 teaspoon of salt)', 'Average American consumes 3,400mg daily, exceeding recommendations', 'May contribute to stomach cancer risk when consumed in very high amounts'],
+    whoShouldCare: 'Individuals with hypertension, heart conditions, kidney disease, or those on sodium-restricted diets, people following FDA dietary guidelines.',
   },
   'calcium propionate': {
     classification: 'synthetic',
@@ -99,9 +164,10 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
   'palm oil': {
     classification: 'processed',
     whyUsed: 'Used for frying and adding texture; stable at high temperatures with long shelf life.',
-    benefits: ['Stable at high temperatures', 'Long shelf life', 'Source of vitamin E and beta-carotene', 'Semi-solid at room temperature (good for texture)'],
-    considerations: ['High in saturated fat (50%)', 'May raise LDL cholesterol levels', 'Environmental concerns (deforestation, habitat destruction)', 'Linked to increased cardiovascular disease risk when consumed in excess'],
-    whoShouldCare: 'Those monitoring saturated fat intake, people with high cholesterol or heart disease, environmentally conscious consumers.',
+    benefits: ['Stable at high temperatures for cooking', 'Long shelf life reduces food waste', 'Source of vitamin E (tocotrienols and tocopherols)', 'Contains beta-carotene (provitamin A)', 'Semi-solid at room temperature (good for texture)', 'Does not require hydrogenation (no trans fats)'],
+    considerations: ['High in saturated fat (approximately 50% of total fat content)', 'May raise LDL (bad) cholesterol levels according to FDA studies', 'Environmental concerns (deforestation, habitat destruction for orangutans)', 'Linked to increased cardiovascular disease risk when consumed in excess', 'American Heart Association recommends limiting saturated fat intake', 'May contribute to inflammation when consumed regularly'],
+    whoShouldCare: 'Those monitoring saturated fat intake, people with high cholesterol or heart disease, individuals following American Heart Association guidelines, environmentally conscious consumers.',
+    allergens: [],
   },
   'soybean oil': {
     classification: 'processed',
@@ -420,6 +486,12 @@ export function analyzeIngredients(
   ingredientList: string,
   preferences: UserPreferences
 ): AnalysisResult {
+  // Validate input is food-related
+  const validation = validateFoodInput(ingredientList);
+  if (!validation.isValid) {
+    throw new Error(validation.reason || 'Invalid food input');
+  }
+  
   const parsedIngredients = parseIngredients(ingredientList);
   
   const ingredients: Ingredient[] = parsedIngredients.map((name) => {

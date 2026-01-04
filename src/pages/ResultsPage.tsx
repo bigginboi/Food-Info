@@ -17,6 +17,7 @@ export default function ResultsPage() {
   const navigate = useNavigate();
   const { preferences } = useUserPreferences();
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [showSources, setShowSources] = useState(false);
 
   useEffect(() => {
@@ -26,9 +27,50 @@ export default function ResultsPage() {
       return;
     }
 
-    const analysis = analyzeIngredients(ingredientList, preferences);
-    setResult(analysis);
+    try {
+      const analysis = analyzeIngredients(ingredientList, preferences);
+      setResult(analysis);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to analyze ingredients');
+      setResult(null);
+    }
   }, [location.state, preferences, navigate]);
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex min-h-screen w-full flex-col bg-background">
+        <AppHeader />
+        
+        <div className="mx-auto w-full max-w-3xl space-y-6 p-4 py-6 xl:p-8 xl:py-8">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/home')}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">Analysis Error</h1>
+          </div>
+
+          <Alert className="border-destructive/50 bg-destructive/5">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+            <AlertDescription>
+              <div className="space-y-3">
+                <p className="font-semibold text-destructive">Unable to Analyze</p>
+                <p className="text-sm text-foreground">{error}</p>
+                <Button 
+                  onClick={() => navigate('/home')} 
+                  variant="outline"
+                  className="mt-2"
+                >
+                  Return to Home
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   if (!result) {
     return null;
@@ -251,12 +293,29 @@ export default function ResultsPage() {
                 <ChevronDown className="h-5 w-5 text-muted-foreground" />
               )}
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-4 space-y-2">
-              <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
+            <CollapsibleContent className="mt-4 space-y-3">
+              <p className="text-sm text-muted-foreground mb-3">
+                All ingredient information is based on data from authoritative health and regulatory organizations:
+              </p>
+              <div className="space-y-3">
                 {sources.map((source, index) => (
-                  <li key={index}>{source}</li>
+                  <div key={index} className="rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
+                    <a 
+                      href={source.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block space-y-1"
+                    >
+                      <h4 className="font-semibold text-sm text-foreground hover:text-primary transition-colors">
+                        {source.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {source.description}
+                      </p>
+                    </a>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </CollapsibleContent>
           </Collapsible>
         </Card>

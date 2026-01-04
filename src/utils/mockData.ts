@@ -28,10 +28,49 @@ export const sampleProducts: SampleProduct[] = [
 ];
 
 export const dataSources = [
-  'FDA (Food & Drug Administration)',
-  'Nutrition.gov',
-  'EFSA (European Food Safety Authority)',
-  'WHO (World Health Organization)',
-  'PubChem',
-  'NIH / NCBI',
+  {
+    name: 'FDA (Food & Drug Administration)',
+    description: 'U.S. federal agency responsible for food safety and nutrition labeling',
+    url: 'https://www.fda.gov'
+  },
+  {
+    name: 'Nutrition.gov',
+    description: 'USDA resource for nutrition information and dietary guidelines',
+    url: 'https://www.nutrition.gov'
+  },
+  {
+    name: 'American Heart Association',
+    description: 'Leading organization for cardiovascular health and nutrition recommendations',
+    url: 'https://www.heart.org'
+  },
+  {
+    name: 'American Diabetes Association',
+    description: 'Authority on diabetes management and dietary recommendations',
+    url: 'https://www.diabetes.org'
+  },
+  {
+    name: 'Dietary Guidelines for Americans',
+    description: 'Official U.S. government dietary recommendations updated every 5 years',
+    url: 'https://www.dietaryguidelines.gov'
+  },
+  {
+    name: 'EFSA (European Food Safety Authority)',
+    description: 'European agency providing scientific advice on food safety',
+    url: 'https://www.efsa.europa.eu'
+  },
+  {
+    name: 'WHO (World Health Organization)',
+    description: 'International health organization providing global nutrition guidance',
+    url: 'https://www.who.int'
+  },
+  {
+    name: 'PubChem',
+    description: 'National library of chemical compounds and their properties',
+    url: 'https://pubchem.ncbi.nlm.nih.gov'
+  },
+  {
+    name: 'NIH / NCBI',
+    description: 'National Institutes of Health research database',
+    url: 'https://www.ncbi.nlm.nih.gov'
+  },
 ];
