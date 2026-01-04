@@ -10,6 +10,317 @@ export interface ProductKeywordMatch {
   category: string;
 }
 
+export interface IngredientClassification {
+  name: string;
+  classification: 'Natural' | 'Processed' | 'Synthetic';
+  description: string;
+  commonUses: string[];
+}
+
+/**
+ * Individual Ingredient Database with Classifications
+ * Used to identify and classify ingredients found in OCR text
+ */
+export const INGREDIENT_DATABASE: IngredientClassification[] = [
+  // Natural Ingredients
+  {
+    name: 'Wheat',
+    classification: 'Natural',
+    description: 'A cereal grain that is a staple food worldwide',
+    commonUses: ['Bread', 'Pasta', 'Baked goods', 'Cereals'],
+  },
+  {
+    name: 'Salt',
+    classification: 'Natural',
+    description: 'Sodium chloride, used for flavoring and preservation',
+    commonUses: ['Seasoning', 'Preservation', 'Flavor enhancement'],
+  },
+  {
+    name: 'Water',
+    classification: 'Natural',
+    description: 'Essential liquid ingredient',
+    commonUses: ['Hydration', 'Mixing', 'Cooking'],
+  },
+  {
+    name: 'Milk',
+    classification: 'Natural',
+    description: 'Dairy product from mammals',
+    commonUses: ['Beverages', 'Dairy products', 'Baking'],
+  },
+  {
+    name: 'Sugar',
+    classification: 'Natural',
+    description: 'Sweet carbohydrate from sugarcane or sugar beet',
+    commonUses: ['Sweetening', 'Baking', 'Preservation'],
+  },
+  {
+    name: 'Cocoa',
+    classification: 'Natural',
+    description: 'Powder made from roasted cacao beans',
+    commonUses: ['Chocolate', 'Beverages', 'Desserts'],
+  },
+  {
+    name: 'Butter',
+    classification: 'Natural',
+    description: 'Dairy product made from milk fat',
+    commonUses: ['Cooking', 'Baking', 'Spreading'],
+  },
+  {
+    name: 'Egg',
+    classification: 'Natural',
+    description: 'Protein-rich food from birds',
+    commonUses: ['Baking', 'Cooking', 'Binding agent'],
+  },
+  {
+    name: 'Corn',
+    classification: 'Natural',
+    description: 'Cereal grain also known as maize',
+    commonUses: ['Snacks', 'Cereals', 'Flour'],
+  },
+  {
+    name: 'Rice',
+    classification: 'Natural',
+    description: 'Staple cereal grain',
+    commonUses: ['Main dishes', 'Flour', 'Cereals'],
+  },
+  {
+    name: 'Potato',
+    classification: 'Natural',
+    description: 'Starchy root vegetable',
+    commonUses: ['Chips', 'Fries', 'Flour'],
+  },
+  {
+    name: 'Onion',
+    classification: 'Natural',
+    description: 'Aromatic vegetable',
+    commonUses: ['Flavoring', 'Seasoning', 'Cooking'],
+  },
+  {
+    name: 'Garlic',
+    classification: 'Natural',
+    description: 'Pungent bulb used for flavoring',
+    commonUses: ['Seasoning', 'Flavoring', 'Cooking'],
+  },
+  {
+    name: 'Tomato',
+    classification: 'Natural',
+    description: 'Fruit commonly used as vegetable',
+    commonUses: ['Sauces', 'Cooking', 'Salads'],
+  },
+  {
+    name: 'Vanilla',
+    classification: 'Natural',
+    description: 'Flavoring from vanilla orchid',
+    commonUses: ['Flavoring', 'Baking', 'Desserts'],
+  },
+  
+  // Processed Ingredients
+  {
+    name: 'Palm Oil',
+    classification: 'Processed',
+    description: 'Vegetable oil extracted from palm fruit',
+    commonUses: ['Cooking', 'Frying', 'Food manufacturing'],
+  },
+  {
+    name: 'Vegetable Oil',
+    classification: 'Processed',
+    description: 'Oil extracted from various plants',
+    commonUses: ['Cooking', 'Frying', 'Baking'],
+  },
+  {
+    name: 'Wheat Flour',
+    classification: 'Processed',
+    description: 'Powder made from grinding wheat',
+    commonUses: ['Baking', 'Bread', 'Pasta'],
+  },
+  {
+    name: 'Corn Flour',
+    classification: 'Processed',
+    description: 'Powder made from grinding corn',
+    commonUses: ['Baking', 'Thickening', 'Coating'],
+  },
+  {
+    name: 'Cornstarch',
+    classification: 'Processed',
+    description: 'Starch extracted from corn',
+    commonUses: ['Thickening', 'Baking', 'Coating'],
+  },
+  {
+    name: 'Maltodextrin',
+    classification: 'Processed',
+    description: 'Polysaccharide used as food additive',
+    commonUses: ['Thickening', 'Bulking', 'Preserving'],
+  },
+  {
+    name: 'High Fructose Corn Syrup',
+    classification: 'Processed',
+    description: 'Sweetener made from corn starch',
+    commonUses: ['Sweetening', 'Beverages', 'Processed foods'],
+  },
+  {
+    name: 'Glucose',
+    classification: 'Processed',
+    description: 'Simple sugar processed from starch',
+    commonUses: ['Sweetening', 'Energy', 'Food manufacturing'],
+  },
+  {
+    name: 'Dextrose',
+    classification: 'Processed',
+    description: 'Form of glucose from corn',
+    commonUses: ['Sweetening', 'Baking', 'Fermentation'],
+  },
+  {
+    name: 'Whey',
+    classification: 'Processed',
+    description: 'Liquid byproduct of cheese production',
+    commonUses: ['Protein supplements', 'Baking', 'Food manufacturing'],
+  },
+  {
+    name: 'Lecithin',
+    classification: 'Processed',
+    description: 'Emulsifier from soybeans or eggs',
+    commonUses: ['Emulsifying', 'Stabilizing', 'Chocolate'],
+  },
+  {
+    name: 'Yeast',
+    classification: 'Processed',
+    description: 'Microorganism used for fermentation',
+    commonUses: ['Bread', 'Fermentation', 'Flavor'],
+  },
+  {
+    name: 'Cocoa Butter',
+    classification: 'Processed',
+    description: 'Fat extracted from cocoa beans',
+    commonUses: ['Chocolate', 'Cosmetics', 'Baking'],
+  },
+  {
+    name: 'Cheese',
+    classification: 'Processed',
+    description: 'Dairy product made from milk',
+    commonUses: ['Snacks', 'Cooking', 'Flavoring'],
+  },
+  {
+    name: 'Milk Solids',
+    classification: 'Processed',
+    description: 'Dried milk components',
+    commonUses: ['Baking', 'Chocolate', 'Dairy products'],
+  },
+  
+  // Synthetic Ingredients
+  {
+    name: 'Monosodium Glutamate',
+    classification: 'Synthetic',
+    description: 'Flavor enhancer (MSG)',
+    commonUses: ['Flavor enhancement', 'Savory foods', 'Instant noodles'],
+  },
+  {
+    name: 'Artificial Flavor',
+    classification: 'Synthetic',
+    description: 'Chemically synthesized flavoring',
+    commonUses: ['Flavoring', 'Beverages', 'Snacks'],
+  },
+  {
+    name: 'Artificial Color',
+    classification: 'Synthetic',
+    description: 'Synthetic food coloring',
+    commonUses: ['Coloring', 'Visual appeal', 'Beverages'],
+  },
+  {
+    name: 'Yellow 5',
+    classification: 'Synthetic',
+    description: 'Synthetic yellow food dye (Tartrazine)',
+    commonUses: ['Coloring', 'Beverages', 'Snacks'],
+  },
+  {
+    name: 'Yellow 6',
+    classification: 'Synthetic',
+    description: 'Synthetic yellow-orange food dye',
+    commonUses: ['Coloring', 'Snacks', 'Beverages'],
+  },
+  {
+    name: 'Red 40',
+    classification: 'Synthetic',
+    description: 'Synthetic red food dye',
+    commonUses: ['Coloring', 'Candies', 'Beverages'],
+  },
+  {
+    name: 'Caramel Color',
+    classification: 'Synthetic',
+    description: 'Brown coloring made from heated sugar',
+    commonUses: ['Coloring', 'Beverages', 'Sauces'],
+  },
+  {
+    name: 'Sodium Benzoate',
+    classification: 'Synthetic',
+    description: 'Preservative to prevent microbial growth',
+    commonUses: ['Preservation', 'Beverages', 'Condiments'],
+  },
+  {
+    name: 'Potassium Sorbate',
+    classification: 'Synthetic',
+    description: 'Preservative to inhibit mold',
+    commonUses: ['Preservation', 'Beverages', 'Baked goods'],
+  },
+  {
+    name: 'BHT',
+    classification: 'Synthetic',
+    description: 'Antioxidant preservative',
+    commonUses: ['Preservation', 'Cereals', 'Snacks'],
+  },
+  {
+    name: 'TBHQ',
+    classification: 'Synthetic',
+    description: 'Antioxidant preservative',
+    commonUses: ['Preservation', 'Oils', 'Fried foods'],
+  },
+  {
+    name: 'Aspartame',
+    classification: 'Synthetic',
+    description: 'Artificial sweetener',
+    commonUses: ['Sweetening', 'Diet beverages', 'Sugar-free products'],
+  },
+  {
+    name: 'Sucralose',
+    classification: 'Synthetic',
+    description: 'Artificial sweetener',
+    commonUses: ['Sweetening', 'Diet products', 'Beverages'],
+  },
+  {
+    name: 'Acesulfame Potassium',
+    classification: 'Synthetic',
+    description: 'Artificial sweetener',
+    commonUses: ['Sweetening', 'Diet beverages', 'Sugar-free products'],
+  },
+  {
+    name: 'Disodium Inosinate',
+    classification: 'Synthetic',
+    description: 'Flavor enhancer',
+    commonUses: ['Flavor enhancement', 'Snacks', 'Instant foods'],
+  },
+  {
+    name: 'Disodium Guanylate',
+    classification: 'Synthetic',
+    description: 'Flavor enhancer',
+    commonUses: ['Flavor enhancement', 'Snacks', 'Instant foods'],
+  },
+];
+
+/**
+ * Search for ingredient in database and return classification
+ */
+export function classifyIngredient(ingredientName: string): IngredientClassification | null {
+  const lowerName = ingredientName.toLowerCase().trim();
+  
+  for (const ingredient of INGREDIENT_DATABASE) {
+    if (ingredient.name.toLowerCase() === lowerName || 
+        lowerName.includes(ingredient.name.toLowerCase())) {
+      return ingredient;
+    }
+  }
+  
+  return null;
+}
+
 /**
  * Database of known products with their ingredients
  * When OCR detects these keywords, we use the predefined ingredients

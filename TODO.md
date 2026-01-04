@@ -91,6 +91,20 @@
   - [x] Update getIngredientInfo to use FDA database
   - [x] Create .env.example with FDA API key instructions
   - [x] Add comprehensive logging for FDA API calls
+- [x] Step 14: Keyword Matching and Product Name Removal
+  - [x] Create product keyword database with 25+ popular products
+  - [x] Implement searchProductKeywords function for instant ingredient detection
+  - [x] Remove product name display from all UI components
+  - [x] Update CameraCapture to prioritize keyword matching
+  - [x] Remove productName state and props throughout application
+- [x] Step 15: Individual Ingredient Database with Classifications
+  - [x] Create INGREDIENT_DATABASE with 60+ common ingredients
+  - [x] Add 15 natural ingredients (wheat, salt, water, milk, sugar, cocoa, butter, egg, corn, rice, potato, onion, garlic, tomato, vanilla)
+  - [x] Add 15 processed ingredients (palm oil, vegetable oil, wheat flour, corn flour, cornstarch, maltodextrin, HFCS, glucose, dextrose, whey, lecithin, yeast, cocoa butter, cheese, milk solids)
+  - [x] Add 15 synthetic ingredients (MSG, artificial flavors/colors, Yellow 5/6, Red 40, caramel color, sodium benzoate, potassium sorbate, BHT, TBHQ, aspartame, sucralose, acesulfame potassium, disodium inosinate/guanylate)
+  - [x] Implement classifyIngredient function for automatic classification
+  - [x] Add descriptions and common uses for each ingredient
+  - [x] Create IngredientClassification interface with Natural/Processed/Synthetic types
 
 ## Notes
 - Green color scheme for natural/safe ingredients
