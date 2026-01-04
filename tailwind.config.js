@@ -60,13 +60,27 @@ export default {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))'
                 },
-                education: {
-                    blue: 'hsl(var(--education-blue))',
-                    green: 'hsl(var(--education-green))'
+                natural: {
+                    DEFAULT: 'hsl(var(--natural))',
+                    foreground: 'hsl(var(--natural-foreground))'
                 },
-                success: 'hsl(var(--success))',
-                warning: 'hsl(var(--warning))',
-                info: 'hsl(var(--info))',
+                processed: {
+                    DEFAULT: 'hsl(var(--processed))',
+                    foreground: 'hsl(var(--processed-foreground))'
+                },
+                synthetic: {
+                    DEFAULT: 'hsl(var(--synthetic))',
+                    foreground: 'hsl(var(--synthetic-foreground))'
+                },
+                verdict: {
+                    better: 'hsl(var(--verdict-better))',
+                    occasional: 'hsl(var(--verdict-occasional))',
+                    avoid: 'hsl(var(--verdict-avoid))'
+                },
+                evolving: {
+                    bg: 'hsl(var(--evolving-bg))',
+                    border: 'hsl(var(--evolving-border))'
+                },
                 sidebar: {
                     DEFAULT: 'hsl(var(--sidebar-background))',
                     background: 'hsl(var(--sidebar-background))',

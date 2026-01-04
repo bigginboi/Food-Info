@@ -1,4 +1,8 @@
-import SamplePage from './pages/SamplePage';
+import WelcomePage from './pages/WelcomePage';
+import GoalSelectionPage from './pages/GoalSelectionPage';
+import PreferenceConfigPage from './pages/PreferenceConfigPage';
+import HomePage from './pages/HomePage';
+import ResultsPage from './pages/ResultsPage';
 import type { ReactNode } from 'react';
 
 interface RouteConfig {
@@ -10,10 +14,30 @@ interface RouteConfig {
 
 const routes: RouteConfig[] = [
   {
-    name: 'Sample Page',
+    name: 'Welcome',
     path: '/',
-    element: <SamplePage />
-  }
+    element: <WelcomePage />,
+  },
+  {
+    name: 'Goal Selection',
+    path: '/goal-selection',
+    element: <GoalSelectionPage />,
+  },
+  {
+    name: 'Preferences',
+    path: '/preferences',
+    element: <PreferenceConfigPage />,
+  },
+  {
+    name: 'Home',
+    path: '/home',
+    element: <HomePage />,
+  },
+  {
+    name: 'Results',
+    path: '/results',
+    element: <ResultsPage />,
+  },
 ];
 
 export default routes;
