@@ -527,6 +527,129 @@ function generateDescription(name: string, classification: IngredientClassificat
   }
 }
 
+// Generate AI opening statement based on product analysis
+function generateAIOpeningStatement(
+  naturalCount: number,
+  processedCount: number,
+  syntheticCount: number,
+  ingredients: Ingredient[]
+): string {
+  const total = naturalCount + processedCount + syntheticCount;
+  const syntheticPercent = (syntheticCount / total) * 100;
+  const processedPercent = (processedCount / total) * 100;
+  
+  // Detect product type based on ingredients
+  const hasHighSugar = ingredients.some(i => 
+    i.name.toLowerCase().includes('sugar') || 
+    i.name.toLowerCase().includes('syrup') ||
+    i.name.toLowerCase().includes('sweetener')
+  );
+  
+  const hasPreservatives = ingredients.some(i =>
+    i.classification === 'synthetic' && (
+      i.name.toLowerCase().includes('benzoate') ||
+      i.name.toLowerCase().includes('sorbate') ||
+      i.name.toLowerCase().includes('propionate')
+    )
+  );
+  
+  const hasFlavorEnhancers = ingredients.some(i =>
+    i.name.toLowerCase().includes('msg') ||
+    i.name.toLowerCase().includes('glutamate') ||
+    i.name.toLowerCase().includes('inosinate')
+  );
+  
+  // Generate context-aware opening
+  if (syntheticPercent > 30 || (processedPercent + syntheticPercent) > 60) {
+    if (hasFlavorEnhancers && hasPreservatives) {
+      return "This looks like a highly processed packaged food. In products like this, what usually matters most is digestion impact and additive load — so I'll focus on those.";
+    } else if (hasHighSugar) {
+      return "This appears to be a processed food product with added sugars. For products like this, the key concerns are typically blood sugar impact and overall nutritional density — I'll prioritize those aspects.";
+    } else {
+      return "This is a processed food product. What matters most here is understanding which ingredients are natural versus synthetic, and how they might affect your health goals.";
+    }
+  } else if (naturalCount > processedCount + syntheticCount) {
+    return "This product has a relatively clean ingredient list with mostly natural components. I'll focus on highlighting what makes it a better choice and any minor considerations.";
+  } else {
+    return "This product has a mix of natural and processed ingredients. I'll help you understand which ones matter most for your health and why.";
+  }
+}
+
+// Generate "What Matters Most" section - 1-2 key ingredients only
+function generateWhatMattersMost(
+  ingredients: Ingredient[],
+  preferences: UserPreferences
+): { ingredients: Array<{ name: string; reason: string }> } {
+  const keyIngredients: Array<{ name: string; reason: string; priority: number }> = [];
+  
+  // Prioritize based on user preferences and ingredient impact
+  ingredients.forEach((ingredient) => {
+    let priority = 0;
+    let reason = '';
+    
+    // High sugar ingredients
+    if (preferences.flagHighSugar && (
+      ingredient.name.toLowerCase().includes('sugar') ||
+      ingredient.name.toLowerCase().includes('syrup') ||
+      ingredient.name.toLowerCase().includes('fructose')
+    )) {
+      priority = 10;
+      reason = `This is a major source of added sugar. Evidence shows excessive sugar intake is linked to weight gain, blood sugar spikes, and increased diabetes risk. Effects vary by individual, but most health organizations recommend limiting added sugars.`;
+    }
+    
+    // Artificial additives and preservatives
+    else if ((preferences.flagArtificialAdditives || preferences.flagPreservatives) && 
+             ingredient.classification === 'synthetic') {
+      if (ingredient.name.toLowerCase().includes('msg') || 
+          ingredient.name.toLowerCase().includes('glutamate')) {
+        priority = 9;
+        reason = `This flavor enhancer is controversial. Research is evolving — while FDA considers it safe, some individuals report sensitivity. It may increase appetite and mask lower-quality ingredients.`;
+      } else if (ingredient.name.toLowerCase().includes('benzoate') ||
+                 ingredient.name.toLowerCase().includes('sorbate')) {
+        priority = 8;
+        reason = `This preservative extends shelf life but is synthetic. Evidence is mixed on long-term effects. Some people report headaches or digestive issues, though reactions vary by individual.`;
+      } else if (ingredient.name.toLowerCase().includes('color') ||
+                 ingredient.name.toLowerCase().includes('yellow') ||
+                 ingredient.name.toLowerCase().includes('red')) {
+        priority = 7;
+        reason = `Artificial colors have no nutritional value. Research is evolving on potential behavioral effects in children. Many health-conscious consumers prefer to avoid them.`;
+      }
+    }
+    
+    // Allergens
+    else if (preferences.flagAllergens && ingredient.allergens && ingredient.allergens.length > 0) {
+      priority = 10;
+      reason = `Contains ${ingredient.allergens.join(', ')} — a common allergen. Critical for those with sensitivities or allergies. Effects range from mild discomfort to severe reactions depending on individual tolerance.`;
+    }
+    
+    // Refined flour (for fitness/health-conscious users)
+    else if ((preferences.goal === 'fitness-focused' || preferences.goal === 'health-conscious') &&
+             ingredient.name.toLowerCase().includes('flour') &&
+             !ingredient.name.toLowerCase().includes('whole')) {
+      priority = 6;
+      reason = `Refined flour is stripped of fiber and nutrients. Evidence shows it causes faster blood sugar spikes compared to whole grains. Impact varies, but those managing weight or blood sugar should be aware.`;
+    }
+    
+    // Palm oil (for health-conscious users)
+    else if (preferences.goal === 'health-conscious' &&
+             ingredient.name.toLowerCase().includes('palm oil')) {
+      priority = 5;
+      reason = `Palm oil is high in saturated fat. Research is mixed — some studies link it to increased cholesterol, while others show neutral effects. Health impact depends on overall diet and individual metabolism.`;
+    }
+    
+    if (priority > 0) {
+      keyIngredients.push({ name: ingredient.name, reason, priority });
+    }
+  });
+  
+  // Sort by priority and take top 1-2
+  keyIngredients.sort((a, b) => b.priority - a.priority);
+  
+  return {
+    ingredients: keyIngredients.slice(0, 2).map(({ name, reason }) => ({ name, reason }))
+  };
+}
+
 // Analyze ingredients and generate result
 export function analyzeIngredients(
   ingredientList: string,
@@ -580,6 +703,12 @@ export function analyzeIngredients(
     allergens: Array.from(allergenSet).sort(),
   };
   
+  // Generate AI opening statement
+  const aiOpeningStatement = generateAIOpeningStatement(naturalCount, processedCount, syntheticCount, ingredients);
+  
+  // Generate "What Matters Most" section
+  const whatMattersMost = generateWhatMattersMost(ingredients, preferences);
+  
   // Determine verdict
   const verdict = determineVerdict(naturalCount, processedCount, syntheticCount);
   
@@ -587,6 +716,8 @@ export function analyzeIngredients(
   const personalizedInsight = generatePersonalizedInsight(preferences, verdict.type, ingredients);
   
   return {
+    aiOpeningStatement,
+    whatMattersMost,
     summary,
     verdict,
     personalizedInsight,

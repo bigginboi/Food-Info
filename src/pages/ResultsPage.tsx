@@ -130,6 +130,32 @@ export default function ResultsPage() {
           <h1 className="text-2xl font-bold">Analysis Results</h1>
         </div>
 
+        {/* AI Opening Statement */}
+        <Alert className="border-primary/30 bg-primary/5">
+          <AlertDescription>
+            <p className="text-sm font-medium text-foreground italic">
+              {result.aiOpeningStatement}
+            </p>
+          </AlertDescription>
+        </Alert>
+
+        {/* What Matters Most Section */}
+        {result.whatMattersMost.ingredients.length > 0 && (
+          <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 p-6">
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-foreground">💡 What Matters Most in This Product</h2>
+              <div className="space-y-4">
+                {result.whatMattersMost.ingredients.map((item, index) => (
+                  <div key={index} className="rounded-lg bg-background/80 p-4 border border-border">
+                    <h3 className="font-bold text-foreground mb-2">{item.name}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.reason}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Allergen Warning */}
         {summary.allergens.length > 0 && (
           <Alert className="border-destructive/50 bg-destructive/5">

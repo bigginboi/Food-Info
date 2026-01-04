@@ -49,6 +49,13 @@ export interface DataSource {
 }
 
 export interface AnalysisResult {
+  aiOpeningStatement: string;
+  whatMattersMost: {
+    ingredients: Array<{
+      name: string;
+      reason: string;
+    }>;
+  };
   summary: IngredientSummary;
   verdict: {
     type: VerdictType;

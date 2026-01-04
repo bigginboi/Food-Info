@@ -155,6 +155,20 @@
   - [x] Increase spacing between benefit/concern items
   - [x] Add clear instructions to click for detailed information
   - [x] Maintain existing features (chemical name, why used, who should care, evolving science)
+- [x] Step 20: AI-Native Analysis with Smart Opening and Key Insights
+  - [x] Add AI opening statement that analyzes product type intelligently
+  - [x] Generate context-aware opening based on ingredient composition
+  - [x] Detect highly processed foods and mention "digestion impact and additive load"
+  - [x] Detect sugar-heavy products and mention "blood sugar impact"
+  - [x] Detect clean products and highlight positive aspects
+  - [x] Create "What Matters Most" section appearing BEFORE ingredient breakdown
+  - [x] Limit to 1-2 key ingredients only (not full list)
+  - [x] Prioritize based on user preferences and ingredient impact
+  - [x] Add explicit uncertainty language ("Evidence is mixed", "Research is evolving", "Effects vary by individual")
+  - [x] Personalize reasons based on user goal (fitness, health-conscious, etc.)
+  - [x] Display in prominent card with gradient background
+  - [x] Show ingredient name and detailed reason for each key ingredient
+  - [x] Include uncertainty phrases in all key ingredient explanations
 
 ## Notes
 - Green color scheme for natural/safe ingredients
