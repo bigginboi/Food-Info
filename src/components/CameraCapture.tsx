@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Camera, X, Check } from 'lucide-react';
-import { extractTextFromImage, detectFoodItem } from '@/utils/ingredientAnalysis';
+import { extractTextFromImage, detectFoodItem, validateExtractedText } from '@/utils/ingredientAnalysis';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CameraCaptureProps {
@@ -70,7 +70,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
     setNoFoodDetected(false);
 
     try {
-      // Detect if food item is present
+      // First, detect if food item is present (visual check simulation)
       const hasFoodItem = await detectFoodItem(imageData);
       
       if (!hasFoodItem) {
@@ -81,6 +81,17 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
 
       // Extract text from image
       const text = await extractTextFromImage(imageData);
+      
+      // Validate that extracted text contains food ingredients
+      const validation = validateExtractedText(text);
+      
+      if (!validation.isFood) {
+        setNoFoodDetected(true);
+        setError(validation.reason || 'No food ingredients detected in the image');
+        setIsProcessing(false);
+        return;
+      }
+      
       setExtractedText(text);
     } catch (err) {
       setError('Failed to process image. Please try again.');

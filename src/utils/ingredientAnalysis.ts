@@ -645,8 +645,26 @@ export function extractTextFromImage(imageData: string): Promise<string> {
 export function detectFoodItem(imageData: string): Promise<boolean> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Simulate food detection (90% success rate)
-      resolve(Math.random() > 0.1);
-    }, 1000);
+      // In a real implementation, this would use computer vision AI
+      // For demo purposes, we simulate detection with high success rate for food items
+      // The actual validation happens in analyzeIngredients when text is extracted
+      
+      // Simulate realistic detection: 95% success rate for actual food labels
+      const isLikelyFood = Math.random() > 0.05;
+      resolve(isLikelyFood);
+    }, 1500);
   });
+}
+
+// Helper function to validate extracted text for food content
+export function validateExtractedText(text: string): { isFood: boolean; reason?: string } {
+  if (!text || text.trim().length < 5) {
+    return { isFood: false, reason: 'No text detected in image' };
+  }
+  
+  // Use the same validation as analyzeIngredients
+  return { 
+    isFood: validateFoodInput(text).isValid,
+    reason: validateFoodInput(text).reason 
+  };
 }

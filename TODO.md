@@ -48,6 +48,10 @@
   - [x] Add specific dietary guidelines (American Heart Association, American Diabetes Association)
   - [x] Enhance data sources with descriptions and URLs
   - [x] Update Results page to display clickable source links
+  - [x] Fix context-aware validation for food terms (table salt, ice cream, etc.)
+  - [x] Integrate validation into camera capture flow
+  - [x] Add validateExtractedText function for OCR results
+  - [x] Update camera component to show "No food item detected" for non-food items
 
 ## Notes
 - Green color scheme for natural/safe ingredients
