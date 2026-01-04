@@ -1,4 +1,13 @@
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
 # Logs
+# =========================
 logs
 *.log
 npm-debug.log*
@@ -7,18 +16,39 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-output
-*.local
-package-lock.json
+# =========================
+# Dependencies
+# =========================
+node_modules/
+.pnpm-store/
 
-# Editor directories and files
+# =========================
+# Build outputs
+# =========================
+dist/
+dist-ssr/
+build/
+output/
+.out/
+.next/
+
+# =========================
+# Local / OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Editor directories
+# =========================
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
+
+# =========================
+# Misc
+# =========================
+*.local
 *.suo
 *.ntvs*
 *.njsproj
@@ -26,4 +56,12 @@ package-lock.json
 *.sw?
 .sync
 history/*.json
+
+# =========================
+# Vite / tooling cache
+# =========================
 .vite_cache
+.cache/
+.turbo/
+.vercel/
+.netlify/
