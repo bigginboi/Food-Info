@@ -152,6 +152,63 @@ export default function ResultsPage() {
           </Alert>
         )}
 
+        {/* Ingredient Type Description */}
+        <Card className="p-6 space-y-4 border-primary/20 bg-gradient-to-br from-background to-primary/5">
+          <div className="space-y-3">
+            <h2 className="text-xl font-bold text-foreground">What's Inside This Product?</h2>
+            
+            <div className="space-y-3">
+              {summary.naturalCount > 0 && (
+                <div className="flex gap-3 items-start">
+                  <div className="w-2 h-2 rounded-full bg-natural mt-2 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-foreground">
+                      {summary.naturalCount} Natural Ingredient{summary.naturalCount > 1 ? 's' : ''}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      These are ingredients that come directly from nature with minimal processing, such as wheat, salt, milk, sugar, and cocoa. They are generally considered safe and wholesome.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {summary.processedCount > 0 && (
+                <div className="flex gap-3 items-start">
+                  <div className="w-2 h-2 rounded-full bg-processed mt-2 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-foreground">
+                      {summary.processedCount} Processed Ingredient{summary.processedCount > 1 ? 's' : ''}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      These ingredients have been refined or modified from their natural state, such as palm oil, vegetable oil, wheat flour, and corn syrup. They are commonly used in food manufacturing.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {summary.syntheticCount > 0 && (
+                <div className="flex gap-3 items-start">
+                  <div className="w-2 h-2 rounded-full bg-synthetic mt-2 shrink-0" />
+                  <div>
+                    <p className="font-semibold text-foreground">
+                      {summary.syntheticCount} Synthetic Ingredient{summary.syntheticCount > 1 ? 's' : ''} / Preservative{summary.syntheticCount > 1 ? 's' : ''}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      These are chemically synthesized additives including artificial flavors, colors, preservatives (like sodium benzoate, BHT, TBHQ), and flavor enhancers (like MSG). They are used to extend shelf life, enhance taste, or improve appearance.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-border">
+              <p className="text-sm text-muted-foreground italic">
+                💡 Tip: Natural ingredients are generally healthier. Limit products with many synthetic additives and preservatives for daily consumption.
+              </p>
+            </div>
+          </div>
+        </Card>
+
         {/* Ingredient Summary */}
         <Card className="p-6 space-y-4">
           <div>
