@@ -19,19 +19,13 @@ export default function ResultsPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showSources, setShowSources] = useState(false);
-  const [productName, setProductName] = useState<string | null>(null);
 
   useEffect(() => {
     const ingredientList = location.state?.ingredientList;
-    const detectedProductName = location.state?.productName;
     
     if (!ingredientList) {
       navigate('/home');
       return;
-    }
-
-    if (detectedProductName) {
-      setProductName(detectedProductName);
     }
 
     try {
@@ -135,21 +129,6 @@ export default function ResultsPage() {
           </Button>
           <h1 className="text-2xl font-bold">Analysis Results</h1>
         </div>
-
-        {/* Product Name */}
-        {productName && (
-          <Card className="border-primary/20 bg-primary/5 p-4">
-            <div className="flex items-center gap-2">
-              <div className="rounded-full bg-primary/10 p-2">
-                <Package className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Scanned Product</p>
-                <p className="text-lg font-bold text-foreground">{productName}</p>
-              </div>
-            </div>
-          </Card>
-        )}
 
         {/* Allergen Warning */}
         {summary.allergens.length > 0 && (

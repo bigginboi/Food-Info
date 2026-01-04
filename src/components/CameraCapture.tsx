@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Camera, X, Check, Loader2 } from 'lucide-react';
-import { extractTextFromImage, detectFoodInImage, extractProductName, extractIngredients } from '@/services/ocrService';
+import { extractTextFromImage, detectFoodInImage, extractIngredients } from '@/services/ocrService';
 import { searchFoodProduct } from '@/services/foodDataService';
 import { analyzeImageVisually } from '@/services/visualAnalysisService';
+import { searchProductKeywords } from '@/services/keywordDatabase';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CameraCaptureProps {
-  onCapture: (ingredientText: string, productName?: string) => void;
+  onCapture: (ingredientText: string) => void;
   onCancel: () => void;
 }
 
@@ -16,7 +17,6 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState('');
-  const [productName, setProductName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +102,6 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
         // If OCR failed but visual analysis succeeded, use predicted ingredients
         if (visualResult.predictedIngredients.length > 0) {
           console.log('OCR failed, using visual analysis predictions');
-          setProductName(visualResult.predictedFoodType);
           setExtractedText(visualResult.predictedIngredients.join(', '));
           setProcessingStep('');
           setIsProcessing(false);
@@ -115,20 +114,24 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
         return;
       }
 
-      // Step 3: Extract product name
-      setProcessingStep('Identifying product...');
-      const detectedProductName = extractProductName(ocrResult.text);
-      if (detectedProductName) {
-        setProductName(detectedProductName);
-        console.log('Detected product name:', detectedProductName);
-      } else if (visualResult.predictedFoodType !== 'Unknown') {
-        // Use visual analysis as fallback
-        setProductName(visualResult.predictedFoodType);
-        console.log('Using visual food type:', visualResult.predictedFoodType);
+      // STEP 1: Search for product keywords in OCR text
+      setProcessingStep('Searching for product keywords...');
+      const keywordMatch = searchProductKeywords(ocrResult.text);
+      
+      if (keywordMatch) {
+        // Found a keyword match! Use predefined ingredients
+        console.log('✓ Keyword match found:', keywordMatch.productName);
+        console.log('Using predefined ingredients from database');
+        setExtractedText(keywordMatch.ingredients);
+        setProcessingStep('');
+        setIsProcessing(false);
+        return;
       }
+      
+      console.log('No keyword match found, proceeding with OCR extraction');
 
-      // Step 4: Extract ingredient list from OCR
-      setProcessingStep('Extracting ingredients...');
+      // STEP 2: Extract ingredient list from OCR
+      setProcessingStep('Extracting ingredients from text...');
       const ocrIngredients = extractIngredients(ocrResult.text);
       
       console.log('OCR extracted ingredients:', ocrIngredients);
@@ -163,24 +166,22 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
       
       setExtractedText(finalIngredients);
 
-      // Step 5: Try to fetch additional data from food databases
-      const productNameToSearch = detectedProductName || visualResult.predictedFoodType;
-      
-      if (productNameToSearch && productNameToSearch !== 'Unknown') {
-        setProcessingStep('Fetching product data from FDA database...');
+      // STEP 3: Try to fetch additional data from FDA database (optional enhancement)
+      if (visualResult.predictedFoodType && visualResult.predictedFoodType !== 'Unknown') {
+        setProcessingStep('Checking FDA database...');
         try {
-          const productData = await searchFoodProduct(productNameToSearch);
+          const productData = await searchFoodProduct(visualResult.predictedFoodType);
           
-          if (productData && productData.ingredients) {
-            console.log('Found product in database:', productData.name);
+          if (productData && productData.ingredients && productData.ingredients.length > 50) {
+            console.log('Found additional data in FDA database');
             // Use database ingredients if available and more complete
             if (productData.ingredients.length > finalIngredients.length) {
               setExtractedText(productData.ingredients);
-              console.log('Using database ingredients (more complete)');
+              console.log('Using FDA database ingredients (more complete)');
             }
           }
         } catch (dbError) {
-          console.log('Database lookup failed, using combined OCR + visual data:', dbError);
+          console.log('FDA database lookup failed, using extracted data:', dbError);
         }
       }
 
@@ -197,7 +198,6 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   const retake = () => {
     setCapturedImage(null);
     setExtractedText('');
-    setProductName('');
     setNoFoodDetected(false);
     setError(null);
     setProcessingStep('');
@@ -206,7 +206,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
 
   const handleConfirm = () => {
     if (extractedText.trim()) {
-      onCapture(extractedText, productName || undefined);
+      onCapture(extractedText);
     }
   };
 
@@ -249,12 +249,6 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
         </div>
       )}
 
-      {productName && !isProcessing && (
-        <div className="rounded-lg border border-border bg-primary/5 p-3">
-          <p className="text-xs font-medium text-muted-foreground">Detected Product:</p>
-          <p className="text-sm font-semibold text-foreground">{productName}</p>
-        </div>
-      )}
 
       {extractedText && !isProcessing && (
         <div className="space-y-2">
