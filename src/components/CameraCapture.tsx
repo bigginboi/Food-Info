@@ -70,28 +70,18 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
     setNoFoodDetected(false);
 
     try {
-      // First, detect if food item is present (visual check simulation)
+      // Detect if food item is present (this now extracts text and validates it)
       const hasFoodItem = await detectFoodItem(imageData);
       
       if (!hasFoodItem) {
         setNoFoodDetected(true);
+        setError('No food item detected. Please scan a food product label.');
         setIsProcessing(false);
         return;
       }
 
-      // Extract text from image
+      // Extract text again for user to edit (already validated as food)
       const text = await extractTextFromImage(imageData);
-      
-      // Validate that extracted text contains food ingredients
-      const validation = validateExtractedText(text);
-      
-      if (!validation.isFood) {
-        setNoFoodDetected(true);
-        setError(validation.reason || 'No food ingredients detected in the image');
-        setIsProcessing(false);
-        return;
-      }
-      
       setExtractedText(text);
     } catch (err) {
       setError('Failed to process image. Please try again.');

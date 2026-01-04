@@ -631,29 +631,46 @@ function generatePersonalizedInsight(
   return goalInsights[preferences.goal] || goalInsights['normal-consumer'];
 }
 
-// Simulate OCR extraction (in real app, this would use actual OCR)
+// Simulate OCR extraction (in real app, this would use actual OCR like Tesseract.js or Google Vision API)
 export function extractTextFromImage(imageData: string): Promise<string> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Simulate OCR result
-      resolve('Wheat flour, water, sugar, yeast, salt, vegetable oil, preservatives (calcium propionate)');
+      // In a real implementation, this would use OCR API
+      // For demo purposes, we simulate realistic OCR results with variety
+      
+      // Use image data to deterministically select a sample text
+      const hash = imageData.length % 10;
+      
+      const sampleTexts = [
+        // Food items (indexes 0-5)
+        'Wheat flour, water, sugar, yeast, salt, vegetable oil, preservatives (calcium propionate)',
+        'Enriched wheat flour, high fructose corn syrup, palm oil, salt, soy lecithin, monoglycerides',
+        'Whey protein isolate, almonds, cocoa butter, erythritol, natural flavors, sea salt',
+        'Carbonated water, sugar, caramel color, phosphoric acid, natural flavors, caffeine',
+        'Maida flour, palm oil, salt, monosodium glutamate, garlic, turmeric, chili, spices',
+        'Milk, sugar, cocoa powder, vanilla extract, carrageenan, stabilizers',
+        // Non-food items (indexes 6-9)
+        'Sodium lauryl sulfate, water, fragrance, colorants, methylparaben, propylparaben',
+        'Detergent, surfactants, enzymes, optical brighteners, perfume',
+        'Polyester fabric 65%, cotton 35%, machine washable, tumble dry low',
+        'Lithium-ion battery, 3.7V, 2000mAh, rechargeable, electronic device',
+      ];
+      
+      resolve(sampleTexts[hash]);
     }, 1500);
   });
 }
 
-// Detect if image contains food product
-export function detectFoodItem(imageData: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      // In a real implementation, this would use computer vision AI
-      // For demo purposes, we simulate detection with high success rate for food items
-      // The actual validation happens in analyzeIngredients when text is extracted
-      
-      // Simulate realistic detection: 95% success rate for actual food labels
-      const isLikelyFood = Math.random() > 0.05;
-      resolve(isLikelyFood);
-    }, 1500);
-  });
+// Detect if image contains food product by analyzing the extracted text
+export async function detectFoodItem(imageData: string): Promise<boolean> {
+  // Extract text from the image first
+  const extractedText = await extractTextFromImage(imageData);
+  
+  // Validate if the extracted text contains food ingredients
+  const validation = validateFoodInput(extractedText);
+  
+  // Return true only if it's valid food content
+  return validation.isValid;
 }
 
 // Helper function to validate extracted text for food content

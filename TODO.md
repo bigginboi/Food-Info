@@ -60,11 +60,14 @@
 - Mobile-first responsive design
 - Camera support for both mobile and desktop webcam
 - User preferences stored in context (no backend storage mentioned in requirements)
-- OCR and food detection are simulated for demo purposes
+- OCR simulation with 10 sample texts (6 food items, 4 non-food items)
+- Food detection analyzes extracted text for non-food keywords BEFORE showing to user
 - Comprehensive health information with 40+ ingredients
 - Allergen detection for common allergens (Wheat, Gluten, Soy, Milk, Dairy, Tree Nuts, etc.)
 - Beautiful branded header with gradient logo and app name
 - Non-food item validation prevents analysis of household items, electronics, cosmetics, etc.
 - All ingredient data references FDA, Nutrition.gov, American Heart Association, and other authoritative sources
 - Data sources are clickable links with descriptions
+- Camera shows "No food item detected" when scanning non-food items (detergent, battery, fabric, etc.)
+- Detection happens during image processing, not after user confirmation
 
