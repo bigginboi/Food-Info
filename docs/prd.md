@@ -1,14 +1,14 @@
 # Food Label Info – AI Ingredient Interpreter Requirements Document
 
 ## 1. Application Overview
-\n### 1.1 Application Name
-Food Label Info – AI Ingredient Interpreter
+
+### 1.1 Application Name\nFood Label Info – AI Ingredient Interpreter
 
 ### 1.2 Application Description
 An AI-driven consumer web application that helps users understand food product labels effortlessly by interpreting ingredient lists and translating complex chemical, scientific, or regulatory language into clear, honest, human-friendly insights.
-\n### 1.3 Core Value Proposition
-Understand what's really in your food — in seconds.
 
+### 1.3 Core Value Proposition
+Understand what's really in your food — in seconds.\n
 ## 2. Core Principles
 
 - Interpret information on behalf of the user, not just display it
@@ -21,17 +21,18 @@ Understand what's really in your food — in seconds.
 ## 3. Application Structure and Pages
 
 ### 3.1 Onboarding Flow
+\n#### Welcome Screen
+- Display value proposition: Understand what's really in your food — in seconds.\n- CTA button: Get Started
+- Use image 2 i.jpeg as the visual reference for this screen
 
-#### Welcome Screen
-- Display value proposition: Understand what's really in your food — in seconds.
-- CTA button: Get Started
-- Use image 2 i.jpeg as the visual reference for this screen\n
-#### User Goal Selection\n- Question: What best describes you right now?
-- Options:
-  - Normal consumer
+#### User Goal Selection
+- Question: What best describes you right now?
+- Options:\n  - Normal consumer
   - Fitness-focused
   - Health-conscious
-  - Medical condition / sensitive (self-reported)\n  - Curious / learning\n- Use image 1 i.jpeg as the visual reference for this screen
+  - Medical condition / sensitive (self-reported)
+  - Curious / learning
+- Use image 1 i.jpeg as the visual reference for this screen
 
 #### Preference Configuration
 - Avoid ingredients with (toggles/checkboxes):
@@ -42,23 +43,24 @@ Understand what's really in your food — in seconds.
 - Tone preference (radio buttons):
   - Simple
   - Balanced
-  - Detailed\n- Store these preferences for personalized explanations
+  - Detailed
+- Store these preferences for personalized explanations
 - Use image 3 i.jpeg as the visual reference for this screen
 
 ### 3.2 Home Screen (Main Action Hub)
-
-#### Primary Actions
+\n#### Primary Actions
 - 📷 Scan Food Label (Camera) - Large, prominent button
+- 📤 Upload Image from Local Storage - Secondary button
 - ✍️ Paste / Type Ingredients or Food Items - Secondary button
-- 🧪 Try a Sample Label (Mock Data) - Tertiary button\n
-#### Secondary Information
+- 🧪 Try a Sample Label (Mock Data) - Tertiary button
+\n#### Secondary Information
 - How it works (expandable explainer)
-- Disclaimer: This app summarizes public research and regulatory guidance. It does not provide medical advice.\n
-### 3.3 Ingredient Input Handling
+- Disclaimer: This app summarizes public research and regulatory guidance. It does not provide medical advice.\n\n### 3.3 Ingredient Input Handling
 
-#### Image Scan Feature\n- Support both phone camera and laptop webcam
-- Show live camera preview with real-time scanning capability\n- Real-time detection and identification:
-  - Continuously analyze camera feed to detect food items
+#### Image Scan Feature
+- Support both phone camera and laptop webcam
+- Show live camera preview with real-time scanning capability
+- Real-time detection and identification:\n  - Continuously analyze camera feed to detect food items
   - Display detected food item name in real-time overlay
   - Show confidence level of detection
 - When food item is detected:
@@ -74,64 +76,71 @@ Understand what's really in your food — in seconds.
   - Allow user to edit OCR text if incorrect
 - Require user confirmation before full analysis
 
+#### Image Upload Feature
+- Provide upload button to select image from local storage
+- Accept common image formats: JPG, JPEG, PNG, HEIC, WEBP
+- Display uploaded image preview
+- Analyze uploaded image for food item detection:\n  - Identify food item name with high accuracy
+  - Extract ingredient list using OCR
+  - Fetch accurate nutritional data from Nutrition.gov and FDA.gov
+  - Cross-reference detected item with official databases to ensure 100% data accuracy
+- Display detected food item name prominently
+- Show extracted ingredient list
+- Allow user to edit OCR text if incorrect
+- Require user confirmation before proceeding to full analysis
+- Provide option to re-upload if detection fails or is inaccurate
+
 #### Text Input Feature
 - Provide text area for pasting or typing ingredient list or food item names
 - Accept both comma-separated format (e.g., flour, sugar, salt) and paragraph format (e.g., full ingredient lists as they appear on packaging)
 - Allow user to edit text before submitting for analysis
-- No character limit or validation required\n- Support multiple languages for ingredient names, with primary focus on English
-- Parse and process submitted text
-
+- No character limit or validation required
+- Support multiple languages for ingredient names, with primary focus on English\n- Parse and process submitted text\n
 #### Mock Data Feature
-- Provide sample products:
-  - Packaged bread
-  - Instant noodles
+- Provide sample products:\n  - Packaged bread\n  - Instant noodles
   - Protein bar
   - Soft drink
+\n### 3.4 Analysis Processing (Backend Logic)
 
-### 3.4 Analysis Processing (Backend Logic)
-
-When user submits ingredients, AI should:
+When user submits ingredients (via camera scan, image upload, or text input), AI should:
 - Parse ingredient list
-- Identify:
-  - Additives
-  - Preservatives
+- Identify:\n  - Additives\n  - Preservatives
   - Artificial colors/flavors
   - Sweeteners
   - Emulsifiers
-- Classify each ingredient:
-  - Natural / Processed / Synthetic
-- Fetch accurate data from FDA.gov and Nutrition.gov:
-  - Query official databases for ingredient information
+- Classify each ingredient:\n  - Natural / Processed / Synthetic
+- Fetch accurate data from FDA.gov and Nutrition.gov:\n  - Query official databases for ingredient information
   - Retrieve nutritional content data
   - Obtain regulatory status and safety information
   - Cross-reference multiple sources for accuracy
-- Generate human-level explanations\n- Adjust tone and depth based on user profile
+- Generate human-level explanations
+- Adjust tone and depth based on user profile
 - Highlight conflicting or evolving research when applicable
 
-### 3.5 Results Screen (Primary Output)\n
-Display analysis results matching the visual style shown in uploaded images.
+### 3.5 Results Screen (Primary Output)
 
+Display analysis results matching the visual style shown in uploaded images.\n
 #### Header Section: Application Branding
 - Position application name and logo in top left corner
 - Design requirements:
   - Styled and eye-catching presentation
   - Beautiful visual treatment that blends seamlessly with overall interface
-  - Logo should be distinctive and memorable\n  - Maintain consistent branding across all pages
+  - Logo should be distinctive and memorable
+  - Maintain consistent branding across all pages
 \n#### Section 1: Detected Food Item Name
 - Display accurately identified food item name prominently
 - Show product brand if detected
-- Include confidence level indicator
-- Allow user to correct if misidentified
+- Include confidence level indicator\n- Allow user to correct if misidentified
 
 #### Section 2: Complete Ingredient List
 - Display full list of all ingredients contained in the food item
-- Present ingredients in order as they appear on the product label
-- Clearly indicate which ingredients are natural and which are not:\n  - Natural ingredients: Marked with green indicator or Natural badge
+- Present ingredients in order as they appear on the product label\n- Clearly indicate which ingredients are natural and which are not:
+  - Natural ingredients: Marked with green indicator or Natural badge
   - Processed ingredients: Marked with orange indicator or Processed badge
-  - Synthetic ingredients: Marked with red/orange indicator or Synthetic badge
-- Format as scannable list with clear visual separation
+  - Synthetic ingredients: Marked with red/orange indicator or Synthetic badge\n- Format as scannable list with clear visual separation
 - Each ingredient should be clickable to view detailed breakdown
-\n#### Section 3: Simplified Ingredient Summary
+
+#### Section 3: Simplified Ingredient Summary
 - Display total ingredient count
 - Show ingredient composition breakdown:\n  - Visual bar chart with color coding:\n    - Green: Natural ingredients\n    - Orange: Processed ingredients
     - Red/Orange: Synthetic ingredients
@@ -162,15 +171,14 @@ Display analysis results matching the visual style shown in uploaded images.
   - Peanuts
   - Wheat
   - Soybeans
-  - Sesame
-- Use clear warning icon or badge
+  - Sesame\n- Use clear warning icon or badge
 - Highlight allergens prominently for user safety
 - Include cross-contamination warnings if applicable
 
 #### Section 6: Health Impact Analysis
 - Provide clear explanation of health benefits and concerns based on FDA.gov and Nutrition.gov data
-- Structure as:\n  - ✅ Health Benefits:
-    - List positive aspects (e.g., high in fiber, contains essential vitamins, good protein source)
+- Structure as:
+  - ✅ Health Benefits:\n    - List positive aspects (e.g., high in fiber, contains essential vitamins, good protein source)
     - Explain why these matter for health
   - ⚠️ Health Considerations:
     - List potential concerns (e.g., high sodium, added sugars, artificial additives)
@@ -210,21 +218,25 @@ Display analysis results matching the visual style shown in uploaded images.
       - Describe risks for specific populations
       - Include dosage or consumption warnings
       - Mention long-term effects if applicable
-    - Who should care more (person icon)\n    - Evolving Science section (if applicable) with light background highlighting uncertainty
+    - Who should care more (person icon)
+    - Evolving Science section (if applicable) with light background highlighting uncertainty
 - Use images 5 i.jpeg, 6 i.jpeg, 7 i.jpeg, and 8 i.jpeg as visual references for this section
 
 #### Section 10: Conflicting / Evolving Science
-- Clearly label uncertainty when research is mixed\n- Explain:\n  - What some studies say
+- Clearly label uncertainty when research is mixed
+- Explain:\n  - What some studies say
   - What regulatory bodies allow
   - Why opinions differ
-- Use distinct visual treatment (light yellow/beige background)\n- Use image 8 i.jpeg as the visual reference for this section
+- Use distinct visual treatment (light yellow/beige background)
+- Use image 8 i.jpeg as the visual reference for this section
 
 #### Section 11: Sources & Credibility
 - Expandable section: Where this information comes from
 - List authoritative sources:\n  - FDA (Food & Drug Administration)
   - Nutrition.gov
   - EFSA (European Food Safety Authority)
-  - WHO\n  - PubChem\n  - NIH / NCBI
+  - WHO\n  - PubChem
+  - NIH / NCBI
 - Display disclaimer: This app summarizes public research and regulatory guidance. It does not provide medical advice. Always consult healthcare professionals for dietary concerns.
 
 ### 3.6 Ingredient Deep Dive Page (Optional)
@@ -245,15 +257,15 @@ When user taps an ingredient, display detailed view:
 - Known controversies\n- Current scientific consensus
 - Sources cited
 
-## 4. Data Sources
-
+## 4. Data Sources\n
 - FDA.gov (Food & Drug Administration) - Primary source for accurate ingredient and nutritional data
 - Nutrition.gov - Primary source for accurate nutritional information
 - EFSA (European Food Safety Authority)\n- WHO (World Health Organization)\n- PubChem (chemical context)\n- NIH / NCBI (scientific research)
 \n## 5. UX and Interaction Guidelines
 
 - Use tooltips instead of long text blocks
-- Implement progressive disclosure (don't overload users)\n- Maintain friendly, neutral tone throughout
+- Implement progressive disclosure (don't overload users)
+- Maintain friendly, neutral tone throughout
 - Avoid fear-based messaging
 - Provide clear Why this matters explanations
 - Use color indicators:\n  - Green: Natural/generally safe
@@ -264,6 +276,8 @@ When user taps an ingredient, display detailed view:
 - Display real-time detection feedback during scanning
 - Show data source attribution for transparency
 - Clearly distinguish natural from non-natural ingredients throughout the interface
+- Provide smooth upload experience with clear feedback
+- Display upload progress and processing status
 
 ## 6. AI Behavior Guidelines
 
@@ -278,6 +292,7 @@ AI must:
 - Cross-reference multiple authoritative sources
 - Provide comprehensive benefits and disadvantages for each ingredient
 - Clearly classify ingredients as natural or non-natural
+- Ensure 100% accuracy when analyzing uploaded images
 - Use language like:\n  - Better choice
   - Occasional choice
   - Not ideal for daily use
@@ -289,8 +304,9 @@ AI must:
 - Clean, minimal UI
 - Mobile-first responsive design
 - Styled and eye-catching application name and logo in top left corner that blends beautifully with interface
-- Real-time camera overlay showing detected food item name
-- Clear visual indicators for natural vs non-natural ingredients throughout the interface
+- Real-time camera overlay showing detected food item name\n- Clear visual indicators for natural vs non-natural ingredients throughout the interface
+- Upload button with clear icon and label
+- Image preview area for uploaded images
 - Match visual style shown in reference images:\n  - Card-based layout for ingredients
   - Color-coded classification badges:\n    - Green for Natural ingredients
     - Orange for Processed ingredients
@@ -304,7 +320,10 @@ AI must:
 - Support camera access for both mobile and desktop webcam
 - Implement real-time image recognition and food item detection
 - Real-time camera preview with continuous scanning\n- Display detected food item name in real-time overlay
-- Implement OCR for ingredient list extraction
+- Implement image upload functionality:\n  - File picker for local storage access
+  - Support for JPG, JPEG, PNG, HEIC, WEBP formats\n  - Image preview before analysis
+  - File size validation and compression if needed
+- Implement OCR for ingredient list extraction from both camera and uploaded images
 - Food item detection capability with confidence scoring
 - Integration with FDA.gov and Nutrition.gov APIs or data sources:\n  - Real-time data fetching from official databases
   - Accurate nutritional information retrieval
@@ -319,13 +338,13 @@ AI must:
 - Allergen detection and display functionality
 - Data caching for improved performance
 - Error handling for network issues or unavailable data
+- Upload progress indicators and status messages
 
 ## 9. Future Considerations (Not in Current Scope)
 
 - Compare two products side-by-side
 - Save scanned products history
-- Advanced dietary profiles (diabetic, lactose intolerant, etc.)
-- Region-based regulatory differences
+- Advanced dietary profiles (diabetic, lactose intolerant, etc.)\n- Region-based regulatory differences
 - Offline scan cache\n\n## 10. Reference Files
 
 1. UI Reference Images:

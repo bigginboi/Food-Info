@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router';
-import { Camera, Edit3, Beaker, ChevronDown, ChevronUp } from 'lucide-react';
+import { Camera, Edit3, Beaker, ChevronDown, ChevronUp, Upload } from 'lucide-react';
 import { sampleProducts } from '@/utils/mockData';
 import CameraCapture from '@/components/CameraCapture';
 import AppHeader from '@/components/AppHeader';
@@ -15,11 +15,37 @@ export default function HomePage() {
   const [showCamera, setShowCamera] = useState(false);
   const [showTextInput, setShowTextInput] = useState(false);
   const [showSamples, setShowSamples] = useState(false);
+  const [showUploadPreview, setShowUploadPreview] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [textInput, setTextInput] = useState('');
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleCameraCapture = (ingredientText: string) => {
     setShowCamera(false);
+    navigate('/results', { state: { ingredientList: ingredientText } });
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageData = e.target?.result as string;
+        setUploadedImage(imageData);
+        setShowUploadPreview(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUploadedImageCapture = (ingredientText: string) => {
+    setShowUploadPreview(false);
+    setUploadedImage(null);
     navigate('/results', { state: { ingredientList: ingredientText } });
   };
 
@@ -58,6 +84,23 @@ export default function HomePage() {
             <Camera className="mr-3 h-6 w-6" />
             Scan Food Label
           </Button>
+
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full h-auto py-6 text-lg"
+            onClick={handleUploadClick}
+          >
+            <Upload className="mr-3 h-6 w-6" />
+            Upload Image from Device
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+          />
 
           <Button
             size="lg"
@@ -166,6 +209,25 @@ export default function HomePage() {
               </Card>
             ))}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Image Preview Dialog */}
+      <Dialog open={showUploadPreview} onOpenChange={setShowUploadPreview}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Analyze Uploaded Image</DialogTitle>
+          </DialogHeader>
+          {uploadedImage && (
+            <CameraCapture
+              onCapture={handleUploadedImageCapture}
+              onCancel={() => {
+                setShowUploadPreview(false);
+                setUploadedImage(null);
+              }}
+              uploadedImage={uploadedImage}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

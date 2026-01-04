@@ -11,11 +11,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 interface CameraCaptureProps {
   onCapture: (ingredientText: string) => void;
   onCancel: () => void;
+  uploadedImage?: string;
 }
 
-export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProps) {
+export default function CameraCapture({ onCapture, onCancel, uploadedImage }: CameraCaptureProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(uploadedImage || null);
   const [extractedText, setExtractedText] = useState('');
   const [ocrConfidence, setOcrConfidence] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -26,11 +27,17 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    startCamera();
+    // If uploadedImage is provided, process it immediately
+    if (uploadedImage) {
+      processImage(uploadedImage);
+    } else {
+      // Otherwise start camera
+      startCamera();
+    }
     return () => {
       stopCamera();
     };
-  }, []);
+  }, [uploadedImage]);
 
   const startCamera = async () => {
     try {
@@ -218,7 +225,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   return (
     <div className="space-y-4">
       {/* Scanning Tips */}
-      {!capturedImage && !isProcessing && (
+      {!capturedImage && !isProcessing && !uploadedImage && (
         <Alert className="border-primary/30 bg-primary/5">
           <AlertDescription>
             <div className="space-y-2">
@@ -234,7 +241,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
         </Alert>
       )}
 
-      {!capturedImage ? (
+      {!capturedImage && !uploadedImage ? (
         <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
           <video
             ref={videoRef}
@@ -246,7 +253,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
         </div>
       ) : (
         <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-          <img src={capturedImage} alt="Captured" className="h-full w-full object-cover" />
+          <img src={capturedImage || ''} alt="Captured" className="h-full w-full object-cover" />
         </div>
       )}
 
@@ -302,7 +309,7 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
       )}
 
       <div className="flex gap-3">
-        {!capturedImage ? (
+        {!capturedImage && !uploadedImage ? (
           <>
             <Button variant="outline" onClick={onCancel} className="flex-1">
               <X className="mr-2 h-4 w-4" />
@@ -315,16 +322,18 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
           </>
         ) : (
           <>
-            <Button variant="outline" onClick={retake} className="flex-1">
-              Retake
-            </Button>
+            {!uploadedImage && (
+              <Button variant="outline" onClick={retake} className="flex-1">
+                Retake
+              </Button>
+            )}
             <Button
               onClick={handleConfirm}
               disabled={!extractedText.trim() || isProcessing}
-              className="flex-1"
+              className={uploadedImage ? 'w-full' : 'flex-1'}
             >
               <Check className="mr-2 h-4 w-4" />
-              Confirm
+              Confirm & Analyze
             </Button>
           </>
         )}
