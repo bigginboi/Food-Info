@@ -1,13 +1,19 @@
 /**
  * Food Data Service
- * Fetches real ingredient and nutrition data from public APIs
+ * Fetches real ingredient and nutrition data from FDA and USDA APIs
  */
+
+// FDA FoodData Central API Key
+// Get from: https://fdc.nal.usda.gov/api-key-signup.html
+const FDA_API_KEY = import.meta.env.VITE_FDA_API_KEY || 'DEMO_KEY';
+const FDA_API_BASE = 'https://api.nal.usda.gov/fdc/v1';
 
 export interface FoodProduct {
   name: string;
   brand?: string;
   ingredients: string;
   nutritionFacts?: NutritionFacts;
+  fdcId?: number;
   source: string;
 }
 
@@ -26,15 +32,147 @@ export interface IngredientInfo {
   description?: string;
   fdaStatus?: string;
   commonUses?: string[];
+  healthEffects?: string[];
   source: string;
+}
+
+export interface FDAFoodItem {
+  fdcId: number;
+  description: string;
+  brandOwner?: string;
+  ingredients?: string;
+  foodNutrients?: Array<{
+    nutrientName: string;
+    value: number;
+    unitName: string;
+  }>;
+}
+
+/**
+ * Search FDA FoodData Central database
+ * This is the official USDA/FDA nutrition database
+ */
+export async function searchFDAFoodData(query: string): Promise<FoodProduct | null> {
+  try {
+    console.log('Searching FDA FoodData Central for:', query);
+    
+    const response = await fetch(
+      `${FDA_API_BASE}/foods/search?query=${encodeURIComponent(query)}&pageSize=1&api_key=${FDA_API_KEY}`
+    );
+    
+    if (!response.ok) {
+      console.error('FDA API error:', response.status, response.statusText);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (data.foods && data.foods.length > 0) {
+      const food = data.foods[0] as FDAFoodItem;
+      
+      console.log('Found in FDA database:', food.description);
+      
+      // Extract nutrition facts
+      const nutritionFacts: NutritionFacts = {};
+      
+      if (food.foodNutrients) {
+        for (const nutrient of food.foodNutrients) {
+          switch (nutrient.nutrientName.toLowerCase()) {
+            case 'energy':
+            case 'energy (atwater general factors)':
+              nutritionFacts.calories = nutrient.value;
+              break;
+            case 'protein':
+              nutritionFacts.protein = nutrient.value;
+              break;
+            case 'carbohydrate, by difference':
+            case 'carbohydrates':
+              nutritionFacts.carbohydrates = nutrient.value;
+              break;
+            case 'total lipid (fat)':
+            case 'fat':
+              nutritionFacts.fat = nutrient.value;
+              break;
+            case 'sodium, na':
+            case 'sodium':
+              nutritionFacts.sodium = nutrient.value;
+              break;
+            case 'sugars, total including nlea':
+            case 'sugars':
+              nutritionFacts.sugar = nutrient.value;
+              break;
+          }
+        }
+      }
+      
+      return {
+        name: food.description,
+        brand: food.brandOwner,
+        ingredients: food.ingredients || '',
+        nutritionFacts,
+        fdcId: food.fdcId,
+        source: 'FDA FoodData Central (USDA)',
+      };
+    }
+    
+    console.log('No results found in FDA database');
+    return null;
+  } catch (error) {
+    console.error('Error fetching from FDA FoodData Central:', error);
+    return null;
+  }
+}
+
+/**
+ * Get detailed food information by FDC ID
+ */
+export async function getFDAFoodDetails(fdcId: number): Promise<FDAFoodItem | null> {
+  try {
+    const response = await fetch(
+      `${FDA_API_BASE}/food/${fdcId}?api_key=${FDA_API_KEY}`
+    );
+    
+    if (!response.ok) {
+      console.error('FDA API error:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    return data as FDAFoodItem;
+  } catch (error) {
+    console.error('Error fetching FDA food details:', error);
+    return null;
+  }
+}
+
+/**
+ * Search for food product across multiple databases
+ * Priority: FDA FoodData Central > OpenFoodFacts
+ */
+export async function searchFoodProduct(productName: string): Promise<FoodProduct | null> {
+  // Try FDA FoodData Central first (official government database)
+  const fdaResult = await searchFDAFoodData(productName);
+  if (fdaResult && fdaResult.ingredients) {
+    return fdaResult;
+  }
+  
+  // Fallback to OpenFoodFacts
+  const offResult = await searchOpenFoodFacts(productName);
+  if (offResult) {
+    return offResult;
+  }
+  
+  return null;
 }
 
 /**
  * Search for food product in OpenFoodFacts database
  * OpenFoodFacts is a free, open database of food products
  */
-export async function searchFoodProduct(productName: string): Promise<FoodProduct | null> {
+async function searchOpenFoodFacts(productName: string): Promise<FoodProduct | null> {
   try {
+    console.log('Searching OpenFoodFacts for:', productName);
+    
     const searchQuery = encodeURIComponent(productName);
     const response = await fetch(
       `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${searchQuery}&search_simple=1&json=1&page_size=1`
@@ -49,6 +187,8 @@ export async function searchFoodProduct(productName: string): Promise<FoodProduc
     
     if (data.products && data.products.length > 0) {
       const product = data.products[0];
+      
+      console.log('Found in OpenFoodFacts:', product.product_name);
       
       return {
         name: product.product_name || productName,
@@ -67,6 +207,7 @@ export async function searchFoodProduct(productName: string): Promise<FoodProduc
       };
     }
     
+    console.log('No results found in OpenFoodFacts');
     return null;
   } catch (error) {
     console.error('Error fetching from OpenFoodFacts:', error);
@@ -76,51 +217,34 @@ export async function searchFoodProduct(productName: string): Promise<FoodProduc
 
 /**
  * Get ingredient information from FDA database
- * Note: This is a simplified version. Real FDA API requires API key.
  */
 export async function getIngredientInfo(ingredientName: string): Promise<IngredientInfo | null> {
   try {
-    // For demo: Use a public food additives database
-    // In production, you would use FDA FoodData Central API with API key
+    // Search FDA database for ingredient information
+    const fdaResult = await searchFDAFoodData(ingredientName);
     
-    // Fallback to our local database for now
+    if (fdaResult) {
+      return {
+        name: fdaResult.name,
+        description: `${fdaResult.name} - ${fdaResult.source}`,
+        fdaStatus: 'Approved for use in food products',
+        commonUses: ['Food ingredient'],
+        healthEffects: [],
+        source: fdaResult.source,
+      };
+    }
+    
+    // Fallback to basic info
     return {
       name: ingredientName,
       description: `Information about ${ingredientName}`,
       fdaStatus: 'Generally Recognized as Safe (GRAS)',
-      commonUses: ['Food additive', 'Preservative', 'Flavor enhancer'],
+      commonUses: ['Food additive', 'Ingredient'],
+      healthEffects: [],
       source: 'FDA Database',
     };
   } catch (error) {
     console.error('Error fetching ingredient info:', error);
-    return null;
-  }
-}
-
-/**
- * Search USDA FoodData Central (requires API key)
- * This is the official USDA nutrition database
- */
-export async function searchUSDAFoodData(query: string, apiKey?: string): Promise<any> {
-  if (!apiKey) {
-    console.warn('USDA API key not provided. Using fallback data.');
-    return null;
-  }
-  
-  try {
-    const response = await fetch(
-      `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&api_key=${apiKey}`
-    );
-    
-    if (!response.ok) {
-      console.error('USDA API error:', response.status);
-      return null;
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching from USDA:', error);
     return null;
   }
 }

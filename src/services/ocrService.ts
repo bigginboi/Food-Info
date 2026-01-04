@@ -37,7 +37,7 @@ export async function extractTextFromImage(imageData: string): Promise<OCRResult
 
 /**
  * Detect if image contains food product by analyzing text
- * This uses REAL OCR to extract text and then validates it
+ * EXTREMELY PERMISSIVE: Only rejects if clearly non-food or OCR fails completely
  * @param imageData - Base64 image data
  * @returns True if food product detected
  */
@@ -46,86 +46,53 @@ export async function detectFoodInImage(imageData: string): Promise<boolean> {
     // Extract text from image using real OCR
     const { text, confidence } = await extractTextFromImage(imageData);
     
-    // If OCR confidence is too low or no text found, reject
-    if (confidence < 30 || !text || text.trim().length < 10) {
-      console.log('OCR confidence too low or insufficient text');
+    // If OCR completely failed (no text at all), reject
+    if (!text || text.trim().length < 5) {
+      console.log('OCR failed - no text extracted');
+      return false;
+    }
+    
+    // If confidence is extremely low, reject
+    if (confidence < 20) {
+      console.log('OCR confidence too low:', confidence);
       return false;
     }
     
     const lowerText = text.toLowerCase();
     
-    // Strong food indicators - if any of these are found, it's definitely food
-    const strongFoodIndicators = [
-      'ingredients:', 'ingredient list', 'contains:',
-      'nutrition facts', 'nutritional information', 'serving size',
-      'calories', 'total fat', 'saturated fat', 'cholesterol',
-      'sodium', 'total carbohydrate', 'dietary fiber', 'sugars', 'protein',
-      'vitamin', 'calcium', 'iron', 'potassium',
+    // Check for EXPLICIT non-food indicators (very strict - only obvious non-food items)
+    const explicitNonFood = [
+      'shampoo', 'conditioner', 'body wash', 'hand soap', 'face wash',
+      'detergent', 'bleach', 'floor cleaner', 'toilet cleaner', 'disinfectant',
+      'battery', 'lithium-ion', 'rechargeable battery', 'electronic device',
+      'machine washable', 'tumble dry', 'polyester fabric', 'cotton fabric',
+      'nail polish', 'lipstick', 'mascara', 'foundation', 'perfume', 'cologne',
+      'motor oil', 'engine oil', 'gasoline', 'antifreeze', 'brake fluid',
+      'printer paper', 'copy paper', 'office supplies',
     ];
     
-    const hasStrongIndicator = strongFoodIndicators.some(indicator => 
+    const hasExplicitNonFood = explicitNonFood.some(indicator => 
       lowerText.includes(indicator)
     );
     
-    if (hasStrongIndicator) {
-      console.log('Strong food indicator found');
-      return true;
-    }
-    
-    // Check for common food ingredients (at least 3 must be present)
-    const commonFoodIngredients = [
-      'flour', 'sugar', 'salt', 'water', 'oil', 'butter', 'milk', 'egg',
-      'wheat', 'corn', 'rice', 'soy', 'yeast', 'starch', 'protein',
-      'flavor', 'preservative', 'color', 'acid', 'lecithin',
-    ];
-    
-    const foodIngredientCount = commonFoodIngredients.filter(ingredient => 
-      lowerText.includes(ingredient)
-    ).length;
-    
-    // Check for explicit non-food indicators
-    const nonFoodIndicators = [
-      'shampoo', 'conditioner', 'body wash', 'hand soap',
-      'detergent', 'bleach', 'cleaner', 'disinfectant',
-      'battery', 'lithium', 'rechargeable', 'electronic',
-      'machine washable', 'tumble dry', 'polyester', 'fabric',
-      'perfume', 'cologne', 'fragrance oil', 'nail polish',
-      'lipstick', 'mascara', 'foundation', 'makeup',
-      'motor oil', 'gasoline', 'antifreeze',
-    ];
-    
-    const hasNonFood = nonFoodIndicators.some(indicator => 
-      lowerText.includes(indicator)
-    );
-    
-    if (hasNonFood) {
-      console.log('Non-food indicator found');
+    if (hasExplicitNonFood) {
+      console.log('Explicit non-food item detected');
       return false;
     }
     
-    // If we found at least 3 common food ingredients, it's likely food
-    if (foodIngredientCount >= 3) {
-      console.log(`Found ${foodIngredientCount} food ingredients`);
-      return true;
-    }
+    // PERMISSIVE APPROACH: If no explicit non-food indicators, assume it's food
+    // This means we accept:
+    // - All ingredient lists (even with chemical names)
+    // - All nutrition labels
+    // - Any text that could be food-related
+    // - Even uncertain cases
     
-    // Check if text looks like an ingredient list (has commas and multiple items)
-    const hasCommas = (text.match(/,/g) || []).length >= 3;
-    const hasMultipleWords = text.split(/\s+/).length >= 10;
-    
-    if (hasCommas && hasMultipleWords && !hasNonFood) {
-      console.log('Text pattern suggests ingredient list');
-      return true;
-    }
-    
-    // Default: if uncertain and no non-food indicators, assume it's food
-    // This aligns with the permissive validation approach
-    console.log('Uncertain - defaulting to food (permissive approach)');
+    console.log('No non-food indicators found - treating as food (permissive approach)');
     return true;
     
   } catch (error) {
     console.error('Food detection error:', error);
-    // On error, default to false to avoid processing invalid images
+    // On error, still try to be permissive - return true unless it's a critical error
     return false;
   }
 }

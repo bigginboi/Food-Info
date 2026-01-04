@@ -77,6 +77,20 @@
   - [x] Improve ingredient extraction with 5 different strategies
   - [x] Add comprehensive logging for debugging OCR results
   - [x] Enhance error messages with specific guidance for users
+- [x] Step 13: Extremely Permissive Detection and FDA Integration
+  - [x] Make food detection extremely permissive (rarely show "no food item detected")
+  - [x] Reduce OCR confidence threshold to 20% (from 30%)
+  - [x] Simplify detection logic to only reject explicit non-food items
+  - [x] Remove requirement for food indicators (accept by default)
+  - [x] Integrate FDA FoodData Central API as primary data source
+  - [x] Add FDA API key configuration with DEMO_KEY fallback
+  - [x] Create searchFDAFoodData function for official USDA/FDA database
+  - [x] Implement getFDAFoodDetails for detailed food information
+  - [x] Update searchFoodProduct to prioritize FDA data over OpenFoodFacts
+  - [x] Extract nutrition facts from FDA API (calories, protein, carbs, fat, sodium, sugar)
+  - [x] Update getIngredientInfo to use FDA database
+  - [x] Create .env.example with FDA API key instructions
+  - [x] Add comprehensive logging for FDA API calls
 
 ## Notes
 - Green color scheme for natural/safe ingredients
@@ -86,28 +100,36 @@
 - Camera support for both mobile and desktop webcam
 - User preferences stored in context (no backend storage mentioned in requirements)
 - **REAL OCR IMPLEMENTATION**: Uses Tesseract.js for actual text extraction from images
-- **INTELLIGENT FOOD DETECTION**: Multi-tier validation system based on actual OCR results
-  - OCR confidence threshold: minimum 30% confidence required
-  - Strong food indicators: nutrition facts, ingredients, serving size, calories, vitamins
-  - Food ingredient counting: requires 3+ common food ingredients
-  - Pattern matching: checks for comma-separated lists with food-related words
-  - Permissive approach: defaults to food when uncertain (no non-food indicators)
+- **EXTREMELY PERMISSIVE DETECTION**: Rarely shows "no food item detected"
+  - OCR confidence threshold: minimum 20% (very low threshold)
+  - Only rejects if OCR completely fails (< 5 characters extracted)
+  - Only rejects explicit non-food items (shampoo, detergent, battery, etc.)
+  - Accepts all food items by default (no food indicators required)
+  - Accepts uncertain cases (permissive approach)
+- **FDA FOODDATA CENTRAL INTEGRATION**: Official USDA/FDA nutrition database
+  - Primary data source for food classification and ingredients
+  - Real nutrition facts from government database
+  - Supports DEMO_KEY for testing (rate limited)
+  - Free API key available at https://fdc.nal.usda.gov/api-key-signup.html
+  - Extracts: calories, protein, carbohydrates, fat, sodium, sugar
+  - Provides brand information and official ingredient lists
 - **ADVANCED INGREDIENT EXTRACTION**: 5 different strategies to find ingredient lists
   - Strategy 1: "Ingredients:" or "Ingredient list:" pattern matching
   - Strategy 2: "Contains:" pattern matching
   - Strategy 3: "Made with:" or "Made from:" pattern matching
   - Strategy 4: Lines with 3+ commas and food-related words
   - Strategy 5: Text between "ingredients" and "nutrition facts"
-- **LIVE DATA INTEGRATION**: Fetches real product data from OpenFoodFacts API
+- **MULTI-SOURCE DATA LOOKUP**: Prioritized data sources
+  1. FDA FoodData Central (official government database)
+  2. OpenFoodFacts (community database)
+  3. Local ingredient database (40+ ingredients)
 - Multi-step processing with visual feedback (scanning → detecting → extracting → fetching)
 - Automatic product name detection from scanned images
 - FDA recalls check functionality (uses FDA OpenFDA API)
-- USDA FoodData Central API support (requires API key for full functionality)
-- Comprehensive logging for debugging OCR and detection results
+- Comprehensive logging for debugging OCR and API results
 - Specific error messages with actionable guidance (lighting, focus, label visibility)
 - **NO SIMULATION**: All food detection based on actual OCR analysis of image content
 - Accepts all food items with chemical names, additives, preservatives, and flavor enhancers
-- Only rejects clearly non-edible items (electronics, cosmetics, cleaning products, tools, etc.)
 - Comprehensive health information with 40+ ingredients in local database
 - Allergen detection for common allergens (Wheat, Gluten, Soy, Milk, Dairy, Tree Nuts, etc.)
 - Beautiful branded header with gradient logo and app name
