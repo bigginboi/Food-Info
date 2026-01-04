@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Camera, X, Check, Loader2 } from 'lucide-react';
 import { extractTextFromImage, detectFoodInImage, extractProductName, extractIngredients } from '@/services/ocrService';
 import { searchFoodProduct } from '@/services/foodDataService';
+import { analyzeImageVisually } from '@/services/visualAnalysisService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CameraCaptureProps {
@@ -71,37 +72,48 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
     setIsProcessing(true);
     setError(null);
     setNoFoodDetected(false);
-    setProcessingStep('Scanning image...');
+    setProcessingStep('Analyzing image...');
 
     try {
-      // Step 1: Detect if food item is present using real OCR
-      setProcessingStep('Analyzing image with OCR...');
-      const isFood = await detectFoodInImage(imageData);
+      // PARALLEL PROCESSING: Run OCR and Visual Analysis simultaneously for speed
+      setProcessingStep('Running OCR and visual analysis...');
       
-      if (!isFood) {
+      const [visualResult, ocrResult, foodDetected] = await Promise.all([
+        analyzeImageVisually(imageData),
+        extractTextFromImage(imageData),
+        detectFoodInImage(imageData),
+      ]);
+      
+      console.log('Visual Analysis Result:', visualResult);
+      console.log('OCR Result:', ocrResult);
+      console.log('Food Detected:', foodDetected);
+      
+      // Check if food was detected
+      if (!foodDetected) {
         setNoFoodDetected(true);
         setError('No food item detected. Please scan a food product label with visible ingredients or nutrition facts.');
         setIsProcessing(false);
         setProcessingStep('');
         return;
       }
-
-      // Step 2: Extract text using real OCR
-      setProcessingStep('Extracting text from label...');
-      const ocrResult = await extractTextFromImage(imageData);
       
+      // Check OCR quality
       if (!ocrResult.text || ocrResult.text.trim().length < 10) {
+        // If OCR failed but visual analysis succeeded, use predicted ingredients
+        if (visualResult.predictedIngredients.length > 0) {
+          console.log('OCR failed, using visual analysis predictions');
+          setProductName(visualResult.predictedFoodType);
+          setExtractedText(visualResult.predictedIngredients.join(', '));
+          setProcessingStep('');
+          setIsProcessing(false);
+          return;
+        }
+        
         setError('Could not extract enough text from image. Please try again with better lighting and focus.');
         setIsProcessing(false);
         setProcessingStep('');
         return;
       }
-
-      console.log('OCR Result:', {
-        text: ocrResult.text,
-        confidence: ocrResult.confidence,
-        length: ocrResult.text.length
-      });
 
       // Step 3: Extract product name
       setProcessingStep('Identifying product...');
@@ -109,39 +121,66 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
       if (detectedProductName) {
         setProductName(detectedProductName);
         console.log('Detected product name:', detectedProductName);
+      } else if (visualResult.predictedFoodType !== 'Unknown') {
+        // Use visual analysis as fallback
+        setProductName(visualResult.predictedFoodType);
+        console.log('Using visual food type:', visualResult.predictedFoodType);
       }
 
-      // Step 4: Extract ingredient list
+      // Step 4: Extract ingredient list from OCR
       setProcessingStep('Extracting ingredients...');
-      const ingredients = extractIngredients(ocrResult.text);
+      const ocrIngredients = extractIngredients(ocrResult.text);
       
-      console.log('Extracted ingredients:', ingredients);
+      console.log('OCR extracted ingredients:', ocrIngredients);
+      console.log('Visual predicted ingredients:', visualResult.predictedIngredients);
       
-      if (ingredients && ingredients.length > 30) {
-        setExtractedText(ingredients);
+      // Combine OCR and visual analysis
+      let finalIngredients = '';
+      
+      if (ocrIngredients && ocrIngredients.length > 30) {
+        // OCR found good ingredient list
+        finalIngredients = ocrIngredients;
+        
+        // Add visual predictions if they're not already in OCR text
+        const visualPredictions = visualResult.predictedIngredients.filter(
+          ing => !ocrIngredients.toLowerCase().includes(ing.toLowerCase())
+        );
+        
+        if (visualPredictions.length > 0) {
+          finalIngredients += '. Visual analysis suggests: ' + visualPredictions.join(', ');
+        }
+      } else if (visualResult.predictedIngredients.length > 0) {
+        // OCR failed, use visual predictions
+        finalIngredients = 'Based on visual analysis: ' + visualResult.predictedIngredients.join(', ');
+        
+        if (ocrResult.text) {
+          finalIngredients += '. OCR text: ' + ocrResult.text;
+        }
       } else {
-        // If no clear ingredient list found, use full text
-        console.log('No clear ingredient list found, using full OCR text');
-        setExtractedText(ocrResult.text);
+        // Use whatever we have
+        finalIngredients = ocrResult.text;
       }
+      
+      setExtractedText(finalIngredients);
 
       // Step 5: Try to fetch additional data from food databases
-      if (detectedProductName) {
-        setProcessingStep('Fetching product data from database...');
+      const productNameToSearch = detectedProductName || visualResult.predictedFoodType;
+      
+      if (productNameToSearch && productNameToSearch !== 'Unknown') {
+        setProcessingStep('Fetching product data from FDA database...');
         try {
-          const productData = await searchFoodProduct(detectedProductName);
+          const productData = await searchFoodProduct(productNameToSearch);
           
           if (productData && productData.ingredients) {
             console.log('Found product in database:', productData.name);
             // Use database ingredients if available and more complete
-            if (productData.ingredients.length > (ingredients?.length || 0)) {
+            if (productData.ingredients.length > finalIngredients.length) {
               setExtractedText(productData.ingredients);
               console.log('Using database ingredients (more complete)');
             }
           }
         } catch (dbError) {
-          console.log('Database lookup failed, using OCR data:', dbError);
-          // Continue with OCR data if database lookup fails
+          console.log('Database lookup failed, using combined OCR + visual data:', dbError);
         }
       }
 
