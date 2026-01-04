@@ -18,9 +18,9 @@ export default function HomePage() {
   const [textInput, setTextInput] = useState('');
   const [showHowItWorks, setShowHowItWorks] = useState(false);
 
-  const handleCameraCapture = (ingredientText: string) => {
+  const handleCameraCapture = (ingredientText: string, productName?: string) => {
     setShowCamera(false);
-    navigate('/results', { state: { ingredientList: ingredientText } });
+    navigate('/results', { state: { ingredientList: ingredientText, productName } });
   };
 
   const handleTextSubmit = () => {

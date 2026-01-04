@@ -56,6 +56,20 @@
   - [x] Expand FOOD_KEYWORDS to include chemical additives and preservatives
   - [x] Update validation logic to accept items with unfamiliar ingredients
   - [x] Add 12 sample OCR texts including highly processed foods with chemicals
+- [x] Step 12: Real-Time OCR and Live Data Integration
+  - [x] Install Tesseract.js for browser-based OCR
+  - [x] Create ocrService with real text extraction from images
+  - [x] Implement detectFoodInImage function using actual OCR
+  - [x] Create extractProductName function to identify products
+  - [x] Create extractIngredients function to parse ingredient lists
+  - [x] Build foodDataService to fetch real data from APIs
+  - [x] Integrate OpenFoodFacts API for product database lookup
+  - [x] Add USDA FoodData Central API support (requires API key)
+  - [x] Implement FDA recalls check functionality
+  - [x] Update CameraCapture to use real OCR with progress indicators
+  - [x] Add multi-step processing UI (scanning, detecting, extracting, fetching)
+  - [x] Display detected product name in camera and results pages
+  - [x] Show real-time OCR progress to users
 
 ## Notes
 - Green color scheme for natural/safe ingredients
@@ -64,20 +78,22 @@
 - Mobile-first responsive design
 - Camera support for both mobile and desktop webcam
 - User preferences stored in context (no backend storage mentioned in requirements)
-- **OCR simulation with weighted random selection: 85% food items, 15% non-food items**
-- 10 different food sample texts (natural and highly processed with chemicals)
-- 4 different non-food sample texts (shampoo, detergent, fabric, battery)
+- **REAL OCR IMPLEMENTATION**: Uses Tesseract.js for actual text extraction from images
+- **LIVE DATA INTEGRATION**: Fetches real product data from OpenFoodFacts API
+- Multi-step processing with visual feedback (scanning → detecting → extracting → fetching)
+- Automatic product name detection from scanned images
+- Automatic ingredient list extraction with pattern matching
+- FDA recalls check functionality (uses FDA OpenFDA API)
+- USDA FoodData Central API support (requires API key for full functionality)
 - **PERMISSIVE VALIDATION**: Defaults to treating input as food unless explicitly non-edible
 - Accepts all food items with chemical names, additives, preservatives, and flavor enhancers
 - Only rejects clearly non-edible items (electronics, cosmetics, cleaning products, tools, etc.)
-- Food detection analyzes extracted text for explicit non-food keywords BEFORE showing to user
-- Comprehensive health information with 40+ ingredients
+- Comprehensive health information with 40+ ingredients in local database
 - Allergen detection for common allergens (Wheat, Gluten, Soy, Milk, Dairy, Tree Nuts, etc.)
 - Beautiful branded header with gradient logo and app name
 - All ingredient data references FDA, Nutrition.gov, American Heart Association, and other authoritative sources
 - Data sources are clickable links with descriptions
-- Camera shows "No food item detected" only for clearly non-edible items (15% of scans)
-- Detection happens during image processing, not after user confirmation
+- Real-time OCR progress indicators for user feedback
+- Product name displayed prominently on results page
 - When uncertain, system assumes item is food and proceeds with analysis
-- Realistic success rate: 85% of camera scans successfully detect food items
 

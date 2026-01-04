@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, X, Check } from 'lucide-react';
-import { extractTextFromImage, detectFoodItem, validateExtractedText } from '@/utils/ingredientAnalysis';
+import { Camera, X, Check, Loader2 } from 'lucide-react';
+import { extractTextFromImage, detectFoodInImage, extractProductName, extractIngredients } from '@/services/ocrService';
+import { searchFoodProduct } from '@/services/foodDataService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CameraCaptureProps {
-  onCapture: (ingredientText: string) => void;
+  onCapture: (ingredientText: string, productName?: string) => void;
   onCancel: () => void;
 }
 
@@ -14,7 +15,9 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState('');
+  const [productName, setProductName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [noFoodDetected, setNoFoodDetected] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -68,22 +71,64 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
     setIsProcessing(true);
     setError(null);
     setNoFoodDetected(false);
+    setProcessingStep('Scanning image...');
 
     try {
-      // Detect if food item is present (this now extracts text and validates it)
-      const hasFoodItem = await detectFoodItem(imageData);
+      // Step 1: Detect if food item is present using real OCR
+      setProcessingStep('Detecting food product...');
+      const isFood = await detectFoodInImage(imageData);
       
-      if (!hasFoodItem) {
+      if (!isFood) {
         setNoFoodDetected(true);
         setError('No food item detected. Please scan a food product label.');
         setIsProcessing(false);
         return;
       }
 
-      // Extract text again for user to edit (already validated as food)
-      const text = await extractTextFromImage(imageData);
-      setExtractedText(text);
+      // Step 2: Extract text using real OCR
+      setProcessingStep('Extracting text from image...');
+      const ocrResult = await extractTextFromImage(imageData);
+      
+      if (!ocrResult.text || ocrResult.text.trim().length < 10) {
+        setError('Could not extract text from image. Please try again with better lighting.');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Step 3: Extract product name
+      setProcessingStep('Identifying product...');
+      const detectedProductName = extractProductName(ocrResult.text);
+      if (detectedProductName) {
+        setProductName(detectedProductName);
+      }
+
+      // Step 4: Extract ingredient list
+      setProcessingStep('Extracting ingredients...');
+      const ingredients = extractIngredients(ocrResult.text);
+      
+      if (ingredients) {
+        setExtractedText(ingredients);
+      } else {
+        // If no clear ingredient list found, use full text
+        setExtractedText(ocrResult.text);
+      }
+
+      // Step 5: Try to fetch additional data from food databases
+      if (detectedProductName) {
+        setProcessingStep('Fetching product data...');
+        const productData = await searchFoodProduct(detectedProductName);
+        
+        if (productData && productData.ingredients) {
+          // Use database ingredients if available and more complete
+          if (productData.ingredients.length > (ingredients?.length || 0)) {
+            setExtractedText(productData.ingredients);
+          }
+        }
+      }
+
+      setProcessingStep('');
     } catch (err) {
+      console.error('Processing error:', err);
       setError('Failed to process image. Please try again.');
     } finally {
       setIsProcessing(false);
@@ -93,14 +138,16 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
   const retake = () => {
     setCapturedImage(null);
     setExtractedText('');
+    setProductName('');
     setNoFoodDetected(false);
     setError(null);
+    setProcessingStep('');
     startCamera();
   };
 
   const handleConfirm = () => {
     if (extractedText.trim()) {
-      onCapture(extractedText);
+      onCapture(extractedText, productName || undefined);
     }
   };
 
@@ -137,12 +184,20 @@ export default function CameraCapture({ onCapture, onCancel }: CameraCaptureProp
       )}
 
       {isProcessing && (
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">Processing image...</p>
+        <div className="flex items-center justify-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <p className="text-sm font-medium">{processingStep || 'Processing image...'}</p>
         </div>
       )}
 
-      {extractedText && (
+      {productName && !isProcessing && (
+        <div className="rounded-lg border border-border bg-primary/5 p-3">
+          <p className="text-xs font-medium text-muted-foreground">Detected Product:</p>
+          <p className="text-sm font-semibold text-foreground">{productName}</p>
+        </div>
+      )}
+
+      {extractedText && !isProcessing && (
         <div className="space-y-2">
           <label className="text-sm font-medium">Extracted ingredients (you can edit):</label>
           <Textarea
