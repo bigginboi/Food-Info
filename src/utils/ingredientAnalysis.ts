@@ -7,56 +7,88 @@ import type {
 } from '@/types/food-label';
 import { dataSources } from './mockData';
 
-// Non-food keywords that indicate invalid input
+// Clearly non-edible keywords that indicate invalid input
+// IMPORTANT: Only reject items that are EXPLICITLY non-food
+// Do NOT reject items with chemical names, additives, or preservatives
 const NON_FOOD_KEYWORDS = [
-  // Household items
-  'detergent', 'soap', 'shampoo', 'conditioner', 'lotion', 'cleanser',
-  'bleach', 'disinfectant', 'sanitizer', 'polish', 'wax',
+  // Household cleaning products
+  'detergent', 'bleach', 'disinfectant', 'sanitizer', 'floor cleaner', 'toilet cleaner',
+  // Personal care (non-edible)
+  'shampoo', 'conditioner', 'body wash', 'hand soap', 'face wash',
+  'lipstick', 'mascara', 'foundation', 'nail polish', 'perfume', 'cologne',
+  'deodorant', 'antiperspirant', 'toothpaste', 'mouthwash', 'dental floss',
   // Electronics
-  'battery', 'charger', 'cable', 'wire', 'circuit', 'electronic', 'computer',
-  'phone', 'tablet', 'laptop', 'monitor', 'keyboard', 'mouse',
-  // Clothing/Textiles
-  'fabric', 'textile', 'polyester', 'nylon', 'clothing', 'shirt',
-  'pants', 'dress', 'shoes', 'socks', 'underwear',
+  'battery', 'lithium-ion', 'rechargeable battery', 'charger', 'power adapter',
+  'electronic device', 'computer', 'laptop', 'smartphone', 'tablet device',
+  // Textiles/Clothing
+  'polyester fabric', 'cotton fabric', 'textile', 'machine washable', 'tumble dry',
+  'clothing item', 'garment',
   // Tools/Hardware
-  'hammer', 'screwdriver', 'wrench', 'drill', 'saw', 'nail', 'screw',
-  'bolt', 'tool', 'hardware',
-  // Furniture
-  'chair', 'desk', 'bed', 'sofa', 'couch', 'furniture',
-  // Cosmetics/Personal Care
-  'makeup', 'lipstick', 'mascara', 'foundation', 'perfume', 'cologne',
-  'deodorant', 'toothpaste', 'mouthwash',
+  'screwdriver', 'wrench', 'hammer', 'power tool', 'drill bit',
   // Automotive
-  'motor oil', 'gasoline', 'diesel', 'antifreeze', 'brake fluid',
-  // Office supplies
-  'paper', 'pen', 'pencil', 'stapler', 'tape', 'glue',
-  // Chemicals
-  'solvent', 'thinner', 'acetone', 'ammonia',
+  'motor oil', 'engine oil', 'gasoline', 'diesel fuel', 'antifreeze', 'brake fluid',
+  // Office/Stationery
+  'printer paper', 'copy paper', 'stapler', 'paper clip',
+  // Medicine (prescription)
+  'prescription drug', 'pharmaceutical', 'medication tablet',
 ];
 
-// Common food-related words that should pass validation
+// Common food-related words that should ALWAYS pass validation
+// Include chemical names, additives, and preservatives commonly found in food
 const FOOD_KEYWORDS = [
+  // Basic ingredients
   'flour', 'sugar', 'salt', 'water', 'oil', 'butter', 'milk', 'egg',
   'wheat', 'corn', 'rice', 'oat', 'barley', 'soy', 'protein',
+  // Additives and preservatives (these are FOOD ingredients)
   'vitamin', 'mineral', 'preservative', 'flavor', 'color', 'starch',
   'yeast', 'baking', 'spice', 'herb', 'extract', 'acid', 'syrup',
   'sweetener', 'emulsifier', 'thickener', 'stabilizer', 'lecithin',
   'gelatin', 'pectin', 'agar', 'carrageenan', 'gum', 'fiber',
+  // Chemical additives (these are FOOD additives)
+  'monosodium glutamate', 'msg', 'sodium benzoate', 'potassium sorbate',
+  'calcium propionate', 'ascorbic acid', 'citric acid', 'malic acid',
+  'xanthan gum', 'guar gum', 'modified starch', 'maltodextrin',
+  'high fructose corn syrup', 'hfcs', 'dextrose', 'fructose', 'glucose',
+  'aspartame', 'sucralose', 'stevia', 'erythritol', 'sorbitol',
+  'caramel color', 'annatto', 'turmeric', 'paprika extract',
+  'natural flavor', 'artificial flavor', 'flavoring',
+  'monoglyceride', 'diglyceride', 'polysorbate',
+  'sodium nitrite', 'sodium nitrate', 'bht', 'bha',
+  'phosphoric acid', 'lactic acid', 'acetic acid',
+  // Food categories
+  'ingredient', 'nutrition', 'calories', 'carbohydrate', 'fat', 'sodium',
+  'edible', 'food', 'beverage', 'drink', 'snack', 'meal',
 ];
 
 // Validate if input is food-related
+// CRITICAL: Default to treating input as FOOD unless explicitly non-edible
+// Only reject items that are clearly electronics, cosmetics, cleaning agents, tools, etc.
 function validateFoodInput(ingredientList: string): { isValid: boolean; reason?: string } {
   const normalized = ingredientList.toLowerCase();
   
-  // Check for non-food keywords with context awareness
+  // If input is too short, it's likely invalid
+  if (ingredientList.trim().length < 3) {
+    return {
+      isValid: false,
+      reason: 'Input too short. Please enter a valid ingredient list.'
+    };
+  }
+  
+  // First, check if it contains ANY food-related keywords
+  // If yes, immediately accept it as food (even if it has chemical names)
+  const hasAnyFoodKeyword = FOOD_KEYWORDS.some(keyword => normalized.includes(keyword));
+  if (hasAnyFoodKeyword) {
+    return { isValid: true }; // Definitely food
+  }
+  
+  // Check for EXPLICIT non-food keywords (only reject if clearly non-edible)
   for (const keyword of NON_FOOD_KEYWORDS) {
     if (normalized.includes(keyword)) {
-      // Skip false positives - check if it's part of a food term
+      // Even if non-food keyword found, check exceptions
       const foodExceptions: Record<string, string[]> = {
-        'table': ['table salt', 'tablespoon'],
-        'cream': ['ice cream', 'sour cream', 'cream cheese', 'whipping cream', 'heavy cream'],
-        'alcohol': ['sugar alcohol'],
-        'cotton': ['cottonseed'],
+        'battery': ['battery acid'], // This is not actually food, but just in case
+        'tablet device': [], // No exceptions
+        'machine washable': [], // No exceptions
       };
       
       // Check if this keyword has exceptions
@@ -69,7 +101,7 @@ function validateFoodInput(ingredientList: string): { isValid: boolean; reason?:
           }
         }
         if (isException) {
-          continue; // Skip this keyword, it's a valid food term
+          continue; // Skip this keyword
         }
       }
       
@@ -80,17 +112,9 @@ function validateFoodInput(ingredientList: string): { isValid: boolean; reason?:
     }
   }
   
-  // If input is very short and doesn't contain food keywords, it might be invalid
-  if (ingredientList.length < 10) {
-    const hasAnyFoodKeyword = FOOD_KEYWORDS.some(keyword => normalized.includes(keyword));
-    if (!hasAnyFoodKeyword) {
-      return {
-        isValid: false,
-        reason: 'Input too short or does not appear to be food ingredients. Please enter a valid ingredient list.'
-      };
-    }
-  }
-  
+  // If no food keywords found AND no non-food keywords found:
+  // DEFAULT TO FOOD (assume it's food with unfamiliar ingredients)
+  // This is the key change: when uncertain, treat as food
   return { isValid: true };
 }
 
@@ -639,21 +663,26 @@ export function extractTextFromImage(imageData: string): Promise<string> {
       // For demo purposes, we simulate realistic OCR results with variety
       
       // Use image data to deterministically select a sample text
-      const hash = imageData.length % 10;
+      const hash = imageData.length % 12;
       
       const sampleTexts = [
-        // Food items (indexes 0-5)
+        // Food items with natural ingredients (indexes 0-2)
         'Wheat flour, water, sugar, yeast, salt, vegetable oil, preservatives (calcium propionate)',
-        'Enriched wheat flour, high fructose corn syrup, palm oil, salt, soy lecithin, monoglycerides',
-        'Whey protein isolate, almonds, cocoa butter, erythritol, natural flavors, sea salt',
-        'Carbonated water, sugar, caramel color, phosphoric acid, natural flavors, caffeine',
-        'Maida flour, palm oil, salt, monosodium glutamate, garlic, turmeric, chili, spices',
-        'Milk, sugar, cocoa powder, vanilla extract, carrageenan, stabilizers',
-        // Non-food items (indexes 6-9)
-        'Sodium lauryl sulfate, water, fragrance, colorants, methylparaben, propylparaben',
-        'Detergent, surfactants, enzymes, optical brighteners, perfume',
-        'Polyester fabric 65%, cotton 35%, machine washable, tumble dry low',
-        'Lithium-ion battery, 3.7V, 2000mAh, rechargeable, electronic device',
+        'Almonds, cashews, peanuts, sea salt, sunflower oil',
+        'Organic oats, honey, dried cranberries, coconut flakes, cinnamon',
+        
+        // Food items with chemical additives (indexes 3-7) - THESE SHOULD PASS
+        'Enriched wheat flour, high fructose corn syrup, palm oil, salt, soy lecithin, monoglycerides, calcium propionate, artificial flavors',
+        'Whey protein isolate, maltodextrin, artificial sweeteners (sucralose, acesulfame potassium), natural and artificial flavors, xanthan gum, soy lecithin',
+        'Carbonated water, sugar, caramel color (E150d), phosphoric acid, natural flavors, caffeine, sodium benzoate',
+        'Maida flour, palm oil, salt, monosodium glutamate, disodium inosinate, disodium guanylate, garlic powder, turmeric, chili, spices',
+        'Modified corn starch, maltodextrin, sodium caseinate, dipotassium phosphate, mono and diglycerides, artificial flavor, annatto color',
+        
+        // Non-food items (indexes 8-11) - THESE SHOULD BE REJECTED
+        'Sodium lauryl sulfate, water, fragrance, colorants, methylparaben, propylparaben, cocamidopropyl betaine',
+        'Detergent, surfactants, enzymes, optical brighteners, perfume, sodium carbonate',
+        'Polyester fabric 65%, cotton 35%, machine washable, tumble dry low, do not bleach',
+        'Lithium-ion battery, 3.7V, 2000mAh, rechargeable, electronic device component',
       ];
       
       resolve(sampleTexts[hash]);

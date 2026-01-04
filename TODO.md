@@ -52,6 +52,10 @@
   - [x] Integrate validation into camera capture flow
   - [x] Add validateExtractedText function for OCR results
   - [x] Update camera component to show "No food item detected" for non-food items
+  - [x] Make validation permissive by default (treat as food unless explicitly non-edible)
+  - [x] Expand FOOD_KEYWORDS to include chemical additives and preservatives
+  - [x] Update validation logic to accept items with unfamiliar ingredients
+  - [x] Add 12 sample OCR texts including highly processed foods with chemicals
 
 ## Notes
 - Green color scheme for natural/safe ingredients
@@ -60,14 +64,17 @@
 - Mobile-first responsive design
 - Camera support for both mobile and desktop webcam
 - User preferences stored in context (no backend storage mentioned in requirements)
-- OCR simulation with 10 sample texts (6 food items, 4 non-food items)
-- Food detection analyzes extracted text for non-food keywords BEFORE showing to user
+- OCR simulation with 12 sample texts (8 food items including highly processed foods, 4 non-food items)
+- **PERMISSIVE VALIDATION**: Defaults to treating input as food unless explicitly non-edible
+- Accepts all food items with chemical names, additives, preservatives, and flavor enhancers
+- Only rejects clearly non-edible items (electronics, cosmetics, cleaning products, tools, etc.)
+- Food detection analyzes extracted text for explicit non-food keywords BEFORE showing to user
 - Comprehensive health information with 40+ ingredients
 - Allergen detection for common allergens (Wheat, Gluten, Soy, Milk, Dairy, Tree Nuts, etc.)
 - Beautiful branded header with gradient logo and app name
-- Non-food item validation prevents analysis of household items, electronics, cosmetics, etc.
 - All ingredient data references FDA, Nutrition.gov, American Heart Association, and other authoritative sources
 - Data sources are clickable links with descriptions
-- Camera shows "No food item detected" when scanning non-food items (detergent, battery, fabric, etc.)
+- Camera shows "No food item detected" only for clearly non-edible items
 - Detection happens during image processing, not after user confirmation
+- When uncertain, system assumes item is food and proceeds with analysis
 
