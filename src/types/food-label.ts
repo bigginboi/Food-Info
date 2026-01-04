@@ -30,6 +30,7 @@ export interface Ingredient {
   considerations?: string[];
   whoShouldCare?: string;
   evolvingScience?: string;
+  allergens?: string[];
 }
 
 export interface IngredientSummary {
@@ -38,6 +39,7 @@ export interface IngredientSummary {
   processedCount: number;
   syntheticCount: number;
   summaryText: string;
+  allergens: string[];
 }
 
 export interface AnalysisResult {

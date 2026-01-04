@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ArrowLeft, ChevronDown, ChevronUp, CheckCircle2, AlertTriangle, User, Lightbulb } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, CheckCircle2, AlertTriangle, User, Lightbulb, AlertCircle } from 'lucide-react';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { analyzeIngredients } from '@/utils/ingredientAnalysis';
 import type { AnalysisResult } from '@/types/food-label';
 import IngredientCard from '@/components/IngredientCard';
+import AppHeader from '@/components/AppHeader';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function ResultsPage() {
@@ -76,6 +77,8 @@ export default function ResultsPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
+      <AppHeader />
+      
       <div className="mx-auto w-full max-w-3xl space-y-6 p-4 py-6 xl:p-8 xl:py-8">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate('/home')}>
@@ -83,6 +86,28 @@ export default function ResultsPage() {
           </Button>
           <h1 className="text-2xl font-bold">Analysis Results</h1>
         </div>
+
+        {/* Allergen Warning */}
+        {summary.allergens.length > 0 && (
+          <Alert className="border-destructive/50 bg-destructive/5">
+            <AlertCircle className="h-5 w-5 text-destructive" />
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="font-semibold text-destructive">Contains Allergens</p>
+                <div className="flex flex-wrap gap-2">
+                  {summary.allergens.map((allergen, index) => (
+                    <Badge key={index} variant="destructive" className="text-xs">
+                      {allergen}
+                    </Badge>
+                  ))}
+                </div>
+                <p className="text-sm text-foreground">
+                  This product contains ingredients that may cause allergic reactions in sensitive individuals.
+                </p>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Ingredient Summary */}
         <Card className="p-6 space-y-4">

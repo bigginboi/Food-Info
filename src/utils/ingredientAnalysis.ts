@@ -16,6 +16,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['Provides carbohydrates for energy', 'Source of some B vitamins and iron (when enriched)', 'Easy to digest for most people'],
     considerations: ['Low in fiber compared to whole wheat', 'Stripped of many vitamins and minerals during refining', 'High glycemic index may cause blood sugar spikes', 'Contains gluten which some people cannot tolerate'],
     whoShouldCare: 'Individuals managing blood sugar levels, those looking for higher fiber intake, people with celiac disease or gluten sensitivity, or anyone prioritizing nutrient-dense foods.',
+    allergens: ['Wheat', 'Gluten'],
   },
   'enriched wheat flour': {
     classification: 'processed',
@@ -24,6 +25,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['Provides carbohydrates for energy', 'Fortified with B vitamins (niacin, thiamine, riboflavin, folic acid) and iron', 'Helps prevent nutrient deficiencies'],
     considerations: ['Still low in fiber compared to whole wheat', 'High glycemic index may cause blood sugar spikes', 'Contains gluten', 'Enrichment doesn\'t replace all lost nutrients from refining'],
     whoShouldCare: 'Individuals managing blood sugar levels, those looking for higher fiber intake, people with celiac disease or gluten sensitivity.',
+    allergens: ['Wheat', 'Gluten'],
   },
   'water': {
     classification: 'natural',
@@ -108,6 +110,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['Source of polyunsaturated fats', 'Contains vitamin E', 'Neutral flavor', 'Cost-effective'],
     considerations: ['Highly processed and refined', 'High in omega-6 fatty acids (may promote inflammation when ratio to omega-3 is imbalanced)', 'Often genetically modified', 'May contain trans fats if partially hydrogenated'],
     whoShouldCare: 'People concerned about omega-6 to omega-3 ratio, those avoiding GMOs, individuals with soy allergies.',
+    allergens: ['Soy'],
   },
   'whey protein isolate': {
     classification: 'processed',
@@ -115,6 +118,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['High protein content (90%+ protein)', 'Complete amino acid profile', 'Fast absorption for muscle recovery', 'Supports muscle growth and repair', 'May aid in weight management', 'Low in lactose'],
     considerations: ['May cause digestive issues for some people', 'Can trigger acne in sensitive individuals', 'Processed dairy product', 'May contain artificial sweeteners', 'Not suitable for vegans'],
     whoShouldCare: 'Athletes and fitness enthusiasts (positive), people with dairy sensitivities, those with acne-prone skin, vegans.',
+    allergens: ['Milk', 'Dairy'],
   },
   'milk protein isolate': {
     classification: 'processed',
@@ -123,6 +127,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['High protein content', 'Contains both whey and casein proteins', 'Supports muscle growth', 'Provides sustained amino acid release'],
     considerations: ['Contains lactose (may cause issues for lactose-intolerant individuals)', 'Processed dairy product', 'Not suitable for vegans', 'May cause digestive discomfort'],
     whoShouldCare: 'People with lactose intolerance, those with dairy allergies, vegans.',
+    allergens: ['Milk', 'Dairy', 'Lactose'],
   },
   'erythritol': {
     classification: 'processed',
@@ -235,6 +240,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['Effective emulsifier', 'May support brain health (contains choline)', 'Generally well-tolerated', 'Helps improve texture'],
     considerations: ['Often derived from GMO soybeans', 'May cause allergic reactions in people with soy allergies', 'Extracted using chemical solvents (hexane)', 'Highly processed'],
     whoShouldCare: 'People with soy allergies, those avoiding GMOs, individuals concerned about chemical extraction processes.',
+    allergens: ['Soy'],
   },
   'sunflower lecithin': {
     classification: 'processed',
@@ -250,6 +256,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['High in healthy monounsaturated fats', 'Good source of protein and fiber', 'Rich in vitamin E, magnesium, and antioxidants', 'May help lower cholesterol', 'Supports heart health', 'May aid in weight management'],
     considerations: ['High in calories', 'Common allergen', 'May contain phytic acid (reduces mineral absorption)', 'Can cause digestive issues if consumed in large amounts'],
     whoShouldCare: 'People with tree nut allergies, those managing calorie intake.',
+    allergens: ['Tree Nuts', 'Almonds'],
   },
   'cocoa butter': {
     classification: 'natural',
@@ -289,6 +296,7 @@ const ingredientDatabase: Record<string, Partial<Ingredient>> = {
     benefits: ['High in protein', 'Improves texture and chewiness', 'Helps dough hold together'],
     considerations: ['Problematic for people with celiac disease', 'Can trigger gluten sensitivity', 'May cause digestive issues', 'Highly processed protein isolate'],
     whoShouldCare: 'People with celiac disease, those with gluten sensitivity or intolerance, individuals with wheat allergies.',
+    allergens: ['Wheat', 'Gluten'],
   },
   'onion': {
     classification: 'natural',
@@ -428,6 +436,7 @@ export function analyzeIngredients(
       considerations: details.considerations,
       whoShouldCare: details.whoShouldCare,
       evolvingScience: details.evolvingScience,
+      allergens: details.allergens,
     };
   });
   
@@ -436,12 +445,21 @@ export function analyzeIngredients(
   const processedCount = ingredients.filter((i) => i.classification === 'processed').length;
   const syntheticCount = ingredients.filter((i) => i.classification === 'synthetic').length;
   
+  // Collect all allergens
+  const allergenSet = new Set<string>();
+  ingredients.forEach((ingredient) => {
+    if (ingredient.allergens) {
+      ingredient.allergens.forEach((allergen) => allergenSet.add(allergen));
+    }
+  });
+  
   const summary = {
     totalCount: ingredients.length,
     naturalCount,
     processedCount,
     syntheticCount,
     summaryText: generateSummaryText(naturalCount, processedCount, syntheticCount),
+    allergens: Array.from(allergenSet).sort(),
   };
   
   // Determine verdict

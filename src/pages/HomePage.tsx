@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router';
 import { Camera, Edit3, Beaker, ChevronDown, ChevronUp } from 'lucide-react';
 import { sampleProducts } from '@/utils/mockData';
 import CameraCapture from '@/components/CameraCapture';
+import AppHeader from '@/components/AppHeader';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export default function HomePage() {
@@ -36,13 +37,15 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-gradient-to-b from-background to-secondary">
+      <AppHeader />
+      
       <div className="mx-auto w-full max-w-2xl space-y-8 p-4 py-8 xl:p-8 xl:py-12">
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-foreground xl:text-4xl">
-            Food Label Info
+            Understand what's really in your food
           </h1>
           <p className="text-base text-muted-foreground xl:text-lg">
-            Understand what's really in your food
+            Get clear, honest ingredient insights — in seconds.
           </p>
         </div>
 
