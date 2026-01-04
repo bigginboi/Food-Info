@@ -64,7 +64,9 @@
 - Mobile-first responsive design
 - Camera support for both mobile and desktop webcam
 - User preferences stored in context (no backend storage mentioned in requirements)
-- OCR simulation with 12 sample texts (8 food items including highly processed foods, 4 non-food items)
+- **OCR simulation with weighted random selection: 85% food items, 15% non-food items**
+- 10 different food sample texts (natural and highly processed with chemicals)
+- 4 different non-food sample texts (shampoo, detergent, fabric, battery)
 - **PERMISSIVE VALIDATION**: Defaults to treating input as food unless explicitly non-edible
 - Accepts all food items with chemical names, additives, preservatives, and flavor enhancers
 - Only rejects clearly non-edible items (electronics, cosmetics, cleaning products, tools, etc.)
@@ -74,7 +76,8 @@
 - Beautiful branded header with gradient logo and app name
 - All ingredient data references FDA, Nutrition.gov, American Heart Association, and other authoritative sources
 - Data sources are clickable links with descriptions
-- Camera shows "No food item detected" only for clearly non-edible items
+- Camera shows "No food item detected" only for clearly non-edible items (15% of scans)
 - Detection happens during image processing, not after user confirmation
 - When uncertain, system assumes item is food and proceeds with analysis
+- Realistic success rate: 85% of camera scans successfully detect food items
 

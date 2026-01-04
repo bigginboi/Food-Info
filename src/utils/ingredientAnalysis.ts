@@ -660,32 +660,42 @@ export function extractTextFromImage(imageData: string): Promise<string> {
   return new Promise((resolve) => {
     setTimeout(() => {
       // In a real implementation, this would use OCR API
-      // For demo purposes, we simulate realistic OCR results with variety
+      // For demo purposes, we simulate realistic OCR results
       
-      // Use image data to deterministically select a sample text
-      const hash = imageData.length % 12;
+      // Use random selection weighted towards food items (85% food, 15% non-food)
+      const random = Math.random();
       
-      const sampleTexts = [
-        // Food items with natural ingredients (indexes 0-2)
-        'Wheat flour, water, sugar, yeast, salt, vegetable oil, preservatives (calcium propionate)',
-        'Almonds, cashews, peanuts, sea salt, sunflower oil',
-        'Organic oats, honey, dried cranberries, coconut flakes, cinnamon',
-        
-        // Food items with chemical additives (indexes 3-7) - THESE SHOULD PASS
-        'Enriched wheat flour, high fructose corn syrup, palm oil, salt, soy lecithin, monoglycerides, calcium propionate, artificial flavors',
-        'Whey protein isolate, maltodextrin, artificial sweeteners (sucralose, acesulfame potassium), natural and artificial flavors, xanthan gum, soy lecithin',
-        'Carbonated water, sugar, caramel color (E150d), phosphoric acid, natural flavors, caffeine, sodium benzoate',
-        'Maida flour, palm oil, salt, monosodium glutamate, disodium inosinate, disodium guanylate, garlic powder, turmeric, chili, spices',
-        'Modified corn starch, maltodextrin, sodium caseinate, dipotassium phosphate, mono and diglycerides, artificial flavor, annatto color',
-        
-        // Non-food items (indexes 8-11) - THESE SHOULD BE REJECTED
-        'Sodium lauryl sulfate, water, fragrance, colorants, methylparaben, propylparaben, cocamidopropyl betaine',
-        'Detergent, surfactants, enzymes, optical brighteners, perfume, sodium carbonate',
-        'Polyester fabric 65%, cotton 35%, machine washable, tumble dry low, do not bleach',
-        'Lithium-ion battery, 3.7V, 2000mAh, rechargeable, electronic device component',
-      ];
+      let selectedText: string;
       
-      resolve(sampleTexts[hash]);
+      if (random < 0.85) {
+        // 85% chance: Return a food item
+        const foodTexts = [
+          'Wheat flour, water, sugar, yeast, salt, vegetable oil, preservatives (calcium propionate)',
+          'Almonds, cashews, peanuts, sea salt, sunflower oil',
+          'Organic oats, honey, dried cranberries, coconut flakes, cinnamon',
+          'Enriched wheat flour, high fructose corn syrup, palm oil, salt, soy lecithin, monoglycerides, calcium propionate, artificial flavors',
+          'Whey protein isolate, maltodextrin, artificial sweeteners (sucralose, acesulfame potassium), natural and artificial flavors, xanthan gum, soy lecithin',
+          'Carbonated water, sugar, caramel color (E150d), phosphoric acid, natural flavors, caffeine, sodium benzoate',
+          'Maida flour, palm oil, salt, monosodium glutamate, disodium inosinate, disodium guanylate, garlic powder, turmeric, chili, spices',
+          'Modified corn starch, maltodextrin, sodium caseinate, dipotassium phosphate, mono and diglycerides, artificial flavor, annatto color',
+          'Milk, sugar, cocoa powder, vanilla extract, carrageenan, stabilizers, natural flavors',
+          'Rice, soybean oil, salt, sugar, hydrolyzed vegetable protein, flavor enhancers (E621, E627, E631)',
+        ];
+        const foodIndex = Math.floor(Math.random() * foodTexts.length);
+        selectedText = foodTexts[foodIndex];
+      } else {
+        // 15% chance: Return a non-food item
+        const nonFoodTexts = [
+          'Sodium lauryl sulfate, water, fragrance, colorants, methylparaben, propylparaben, cocamidopropyl betaine',
+          'Detergent, surfactants, enzymes, optical brighteners, perfume, sodium carbonate',
+          'Polyester fabric 65%, cotton 35%, machine washable, tumble dry low, do not bleach',
+          'Lithium-ion battery, 3.7V, 2000mAh, rechargeable, electronic device component',
+        ];
+        const nonFoodIndex = Math.floor(Math.random() * nonFoodTexts.length);
+        selectedText = nonFoodTexts[nonFoodIndex];
+      }
+      
+      resolve(selectedText);
     }, 1500);
   });
 }
