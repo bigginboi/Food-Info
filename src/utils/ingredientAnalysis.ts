@@ -594,7 +594,7 @@ function generateWhatMattersMost(
       ingredient.name.toLowerCase().includes('fructose')
     )) {
       priority = 10;
-      reason = `This is a major source of added sugar. Evidence shows excessive sugar intake is linked to weight gain, blood sugar spikes, and increased diabetes risk. Effects vary by individual, but most health organizations recommend limiting added sugars.`;
+      reason = `This is a major source of added sugar. Evidence shows excessive sugar intake is linked to weight gain, blood sugar spikes, and increased diabetes risk. The trade-off here is immediate energy and taste appeal vs long-term metabolic health. Effects vary by individual, but most health organizations recommend limiting added sugars. Safer in small amounts, less ideal if consumed daily.`;
     }
     
     // Artificial additives and preservatives
@@ -603,23 +603,23 @@ function generateWhatMattersMost(
       if (ingredient.name.toLowerCase().includes('msg') || 
           ingredient.name.toLowerCase().includes('glutamate')) {
         priority = 9;
-        reason = `This flavor enhancer is controversial. Research is evolving — while FDA considers it safe, some individuals report sensitivity. It may increase appetite and mask lower-quality ingredients.`;
+        reason = `This flavor enhancer is controversial. Research is evolving — while FDA considers it safe, some individuals report sensitivity. The trade-off here is enhanced savory taste vs potential appetite increase and masking of lower-quality ingredients. It may increase appetite and mask lower-quality ingredients. Effects vary widely by individual.`;
       } else if (ingredient.name.toLowerCase().includes('benzoate') ||
                  ingredient.name.toLowerCase().includes('sorbate')) {
         priority = 8;
-        reason = `This preservative extends shelf life but is synthetic. Evidence is mixed on long-term effects. Some people report headaches or digestive issues, though reactions vary by individual.`;
+        reason = `This preservative extends shelf life but is synthetic. The trade-off here is shelf life vs freshness — it prevents mold growth but adds a synthetic compound. Evidence is mixed on long-term effects. Some people report headaches or digestive issues, though reactions vary by individual. Generally safer in small amounts, less ideal if consumed daily.`;
       } else if (ingredient.name.toLowerCase().includes('color') ||
                  ingredient.name.toLowerCase().includes('yellow') ||
                  ingredient.name.toLowerCase().includes('red')) {
         priority = 7;
-        reason = `Artificial colors have no nutritional value. Research is evolving on potential behavioral effects in children. Many health-conscious consumers prefer to avoid them.`;
+        reason = `Artificial colors have no nutritional value. The trade-off here is visual appeal vs natural ingredients — they make food look more attractive but add synthetic compounds. Research is evolving on potential behavioral effects in children. Many health-conscious consumers prefer to avoid them. Effects vary by individual sensitivity.`;
       }
     }
     
     // Allergens
     else if (preferences.flagAllergens && ingredient.allergens && ingredient.allergens.length > 0) {
       priority = 10;
-      reason = `Contains ${ingredient.allergens.join(', ')} — a common allergen. Critical for those with sensitivities or allergies. Effects range from mild discomfort to severe reactions depending on individual tolerance.`;
+      reason = `Contains ${ingredient.allergens.join(', ')} — a common allergen. Critical for those with sensitivities or allergies. Effects range from mild discomfort to severe reactions depending on individual tolerance. The trade-off here is ingredient functionality vs allergen risk — this ingredient serves a purpose but may cause reactions in sensitive individuals.`;
     }
     
     // Refined flour (for fitness/health-conscious users)
@@ -627,14 +627,14 @@ function generateWhatMattersMost(
              ingredient.name.toLowerCase().includes('flour') &&
              !ingredient.name.toLowerCase().includes('whole')) {
       priority = 6;
-      reason = `Refined flour is stripped of fiber and nutrients. Evidence shows it causes faster blood sugar spikes compared to whole grains. Impact varies, but those managing weight or blood sugar should be aware.`;
+      reason = `Refined flour is stripped of fiber and nutrients. Evidence shows it causes faster blood sugar spikes compared to whole grains. The trade-off here is texture and shelf life vs nutritional density — refined flour creates softer textures but loses fiber and vitamins. Impact varies, but those managing weight or blood sugar should be aware. Less ideal for daily consumption.`;
     }
     
     // Palm oil (for health-conscious users)
     else if (preferences.goal === 'health-conscious' &&
              ingredient.name.toLowerCase().includes('palm oil')) {
       priority = 5;
-      reason = `Palm oil is high in saturated fat. Research is mixed — some studies link it to increased cholesterol, while others show neutral effects. Health impact depends on overall diet and individual metabolism.`;
+      reason = `Palm oil is high in saturated fat. Research is mixed — some studies link it to increased cholesterol, while others show neutral effects. The trade-off here is cost and stability vs healthier oil options — palm oil is cheap and shelf-stable but higher in saturated fat than alternatives like olive or canola oil. Health impact depends on overall diet and individual metabolism.`;
     }
     
     if (priority > 0) {
@@ -753,20 +753,20 @@ function determineVerdict(
   if (naturalPercent > 60 && syntheticPercent < 10) {
     return {
       type: 'better-choice',
-      explanation: 'This product contains mostly natural ingredients with minimal synthetic additives, making it a better choice for regular consumption.',
+      explanation: 'This product contains mostly natural ingredients with minimal synthetic additives, making it a better choice for regular consumption. The trade-off here is convenience vs purity — while it may have shorter shelf life than heavily processed alternatives, you get cleaner ingredients. Evidence suggests whole food ingredients are generally better tolerated and provide more nutritional value.',
     };
   }
   
   if (syntheticPercent > 30 || processed > natural) {
     return {
       type: 'not-ideal',
-      explanation: 'This product contains significant amounts of processed and synthetic ingredients, making it not ideal for daily consumption.',
+      explanation: 'This product contains significant amounts of processed and synthetic ingredients, making it not ideal for daily consumption. The trade-off here is convenience and shelf life vs nutritional quality — these additives extend freshness and enhance taste, but at the cost of adding synthetic compounds. Research is mixed on long-term effects, but safer in small amounts, less ideal if consumed daily.',
     };
   }
   
   return {
     type: 'occasional-choice',
-    explanation: 'While it contains natural ingredients, the presence of processed and synthetic components makes it suitable for occasional consumption rather than a daily staple.',
+    explanation: 'While it contains natural ingredients, the presence of processed and synthetic components makes it suitable for occasional consumption rather than a daily staple. The trade-off here is taste consistency and convenience vs ingredient purity — processing improves texture and shelf life but reduces nutritional density. Effects vary by individual, but moderation is generally recommended.',
   };
 }
 
@@ -776,11 +776,11 @@ function generatePersonalizedInsight(
   ingredients: Ingredient[]
 ): string {
   const goalInsights: Record<string, string> = {
-    'normal-consumer': 'This product is primarily a source of carbohydrates and fat, with flavor coming from a mix of natural spices and synthetic enhancers. If you\'re looking for a quick meal, it can fit, but consider its nutritional density and the presence of refined ingredients and additives.',
-    'fitness-focused': 'From a fitness perspective, this product may not provide optimal nutrition. It\'s high in refined carbohydrates and may contain additives that don\'t support performance goals. Consider whole food alternatives for better nutrient density.',
-    'health-conscious': 'For health-conscious individuals, this product contains several processed and synthetic ingredients that may not align with clean eating principles. The presence of additives and refined ingredients suggests it\'s better as an occasional choice.',
-    'medical-sensitivity': 'If you have specific sensitivities or medical conditions, pay close attention to the synthetic additives and processed ingredients in this product. Some individuals report sensitivity to certain flavor enhancers and preservatives.',
-    'curious-learner': 'This product offers an interesting case study in food manufacturing. It combines natural spices with synthetic flavor enhancers and processed ingredients to create a convenient, shelf-stable product. Understanding these ingredients helps you make informed choices.',
+    'normal-consumer': 'This product is primarily a source of carbohydrates and fat, with flavor coming from a mix of natural spices and synthetic enhancers. The trade-off here is convenience vs nutrition — it\'s quick and tasty, but consider its nutritional density and the presence of refined ingredients and additives. If you\'re looking for a quick meal, it can fit, but effects vary by individual and frequency of consumption.',
+    'fitness-focused': 'From a fitness perspective, this product may not provide optimal nutrition. The trade-off here is convenience vs performance — it\'s easy to prepare but high in refined carbohydrates and may contain additives that don\'t support performance goals. Evidence shows whole food alternatives provide better nutrient density for training and recovery. Impact varies, but less ideal for daily consumption if you\'re serious about fitness.',
+    'health-conscious': 'For health-conscious individuals, this product contains several processed and synthetic ingredients that may not align with clean eating principles. The trade-off here is taste and shelf life vs ingredient purity — processing improves flavor consistency but adds compounds you may prefer to avoid. Research is evolving on long-term effects of these additives. The presence of additives and refined ingredients suggests it\'s better as an occasional choice.',
+    'medical-sensitivity': 'If you have specific sensitivities or medical conditions, pay close attention to the synthetic additives and processed ingredients in this product. The trade-off here is convenience vs symptom management — while it\'s easy to prepare, some individuals report sensitivity to certain flavor enhancers and preservatives. Effects range from mild discomfort to more significant reactions depending on individual tolerance. Safer in small amounts, less ideal if consumed regularly.',
+    'curious-learner': 'This product offers an interesting case study in food manufacturing. The trade-off here is modern food science vs traditional ingredients — it combines natural spices with synthetic flavor enhancers and processed ingredients to create a convenient, shelf-stable product. Research is mixed on whether these innovations improve or compromise nutritional value. Understanding these ingredients and their trade-offs helps you make informed choices based on your priorities.',
   };
   
   return goalInsights[preferences.goal] || goalInsights['normal-consumer'];

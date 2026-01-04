@@ -169,6 +169,27 @@
   - [x] Display in prominent card with gradient background
   - [x] Show ingredient name and detailed reason for each key ingredient
   - [x] Include uncertainty phrases in all key ingredient explanations
+- [x] Step 21: Explicit Trade-Off Language Throughout Analysis
+  - [x] Add trade-off phrases to "What Matters Most" section
+  - [x] Sugar: "The trade-off here is immediate energy and taste appeal vs long-term metabolic health"
+  - [x] MSG: "The trade-off here is enhanced savory taste vs potential appetite increase"
+  - [x] Preservatives: "The trade-off here is shelf life vs freshness"
+  - [x] Artificial colors: "The trade-off here is visual appeal vs natural ingredients"
+  - [x] Allergens: "The trade-off here is ingredient functionality vs allergen risk"
+  - [x] Refined flour: "The trade-off here is texture and shelf life vs nutritional density"
+  - [x] Palm oil: "The trade-off here is cost and stability vs healthier oil options"
+  - [x] Add trade-off language to verdict explanations
+  - [x] Better choice: "The trade-off here is convenience vs purity"
+  - [x] Not ideal: "The trade-off here is convenience and shelf life vs nutritional quality"
+  - [x] Occasional choice: "The trade-off here is taste consistency and convenience vs ingredient purity"
+  - [x] Add trade-off language to personalized insights for all user goals
+  - [x] Normal consumer: "The trade-off here is convenience vs nutrition"
+  - [x] Fitness-focused: "The trade-off here is convenience vs performance"
+  - [x] Health-conscious: "The trade-off here is taste and shelf life vs ingredient purity"
+  - [x] Medical sensitivity: "The trade-off here is convenience vs symptom management"
+  - [x] Curious learner: "The trade-off here is modern food science vs traditional ingredients"
+  - [x] Include phrases like "Safer in small amounts, less ideal if consumed daily"
+  - [x] Add "This improves X, but increases Y" pattern throughout
 
 ## Notes
 - Green color scheme for natural/safe ingredients
