@@ -10,19 +10,19 @@ import { dataSources } from './mockData';
 // Non-food keywords that indicate invalid input
 const NON_FOOD_KEYWORDS = [
   // Household items
-  'detergent', 'soap', 'shampoo', 'conditioner', 'lotion', 'cream', 'cleanser',
-  'bleach', 'disinfectant', 'sanitizer', 'polish', 'wax', 'spray',
+  'detergent', 'soap', 'shampoo', 'conditioner', 'lotion', 'cleanser',
+  'bleach', 'disinfectant', 'sanitizer', 'polish', 'wax',
   // Electronics
   'battery', 'charger', 'cable', 'wire', 'circuit', 'electronic', 'computer',
   'phone', 'tablet', 'laptop', 'monitor', 'keyboard', 'mouse',
   // Clothing/Textiles
-  'fabric', 'textile', 'cotton', 'polyester', 'nylon', 'clothing', 'shirt',
+  'fabric', 'textile', 'polyester', 'nylon', 'clothing', 'shirt',
   'pants', 'dress', 'shoes', 'socks', 'underwear',
   // Tools/Hardware
   'hammer', 'screwdriver', 'wrench', 'drill', 'saw', 'nail', 'screw',
   'bolt', 'tool', 'hardware',
   // Furniture
-  'chair', 'table', 'desk', 'bed', 'sofa', 'couch', 'furniture',
+  'chair', 'desk', 'bed', 'sofa', 'couch', 'furniture',
   // Cosmetics/Personal Care
   'makeup', 'lipstick', 'mascara', 'foundation', 'perfume', 'cologne',
   'deodorant', 'toothpaste', 'mouthwash',
@@ -31,7 +31,7 @@ const NON_FOOD_KEYWORDS = [
   // Office supplies
   'paper', 'pen', 'pencil', 'stapler', 'tape', 'glue',
   // Chemicals
-  'solvent', 'thinner', 'acetone', 'alcohol', 'ammonia',
+  'solvent', 'thinner', 'acetone', 'ammonia',
 ];
 
 // Common food-related words that should pass validation
@@ -48,9 +48,31 @@ const FOOD_KEYWORDS = [
 function validateFoodInput(ingredientList: string): { isValid: boolean; reason?: string } {
   const normalized = ingredientList.toLowerCase();
   
-  // Check for non-food keywords
+  // Check for non-food keywords with context awareness
   for (const keyword of NON_FOOD_KEYWORDS) {
     if (normalized.includes(keyword)) {
+      // Skip false positives - check if it's part of a food term
+      const foodExceptions: Record<string, string[]> = {
+        'table': ['table salt', 'tablespoon'],
+        'cream': ['ice cream', 'sour cream', 'cream cheese', 'whipping cream', 'heavy cream'],
+        'alcohol': ['sugar alcohol'],
+        'cotton': ['cottonseed'],
+      };
+      
+      // Check if this keyword has exceptions
+      if (foodExceptions[keyword]) {
+        let isException = false;
+        for (const exception of foodExceptions[keyword]) {
+          if (normalized.includes(exception)) {
+            isException = true;
+            break;
+          }
+        }
+        if (isException) {
+          continue; // Skip this keyword, it's a valid food term
+        }
+      }
+      
       return {
         isValid: false,
         reason: `This appears to be a non-food item (detected: "${keyword}"). Please scan or enter food product ingredients only.`
